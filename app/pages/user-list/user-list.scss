@@ -1,0 +1,17 @@
+.user-list {
+
+  ion-card.user ion-card-header .item {
+    padding: 12px;
+  }
+
+  ion-card.user ion-card-content .list {
+    margin: 0;
+  }
+
+  ion-card.user ion-card-header,
+  ion-card.user ion-card-content,
+  ion-card.user ion-card-content .list ion-item-content, {
+    padding: 0;
+  }
+
+}

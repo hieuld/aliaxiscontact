@@ -1,0 +1,56 @@
+<ion-header>
+  <ion-navbar>
+    <button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Contact</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="outer-content">
+  <!-- <ion-card *ngFor="let contact of contacts" class="contact"> -->
+  <ion-list [virtualScroll]="contacts" class="contact-list">
+    <ion-card *virtualItem="let contact" class="contact">
+      <ion-card-header>
+        <ion-item class="item-borderless">
+          <ion-avatar item-left>
+            <!-- <img [src]="contact.photos[0]" *ngIf="contact.photos && contact.photos.length > 0"> -->
+            <img src="img/user.svg">
+          </ion-avatar>
+          {{contact?.name?.givenName}} {{contact?.name?.familyName}}
+        </ion-item>
+      </ion-card-header>
+
+      <ion-card-content class="outer-content">
+        <ion-list>
+          <ion-item ion-item *ngFor="let phoneNumber of contact.phoneNumbers">
+            <h3>{{phoneNumber?.value}}</h3>
+          </ion-item>
+          <ion-item ion-item *ngFor="let organization of contact.organizations">
+            <h3>Company: {{organization?.name}}</h3>
+          </ion-item>
+          <ion-item ion-item *ngFor="let email of contact.emails">
+            <h3>Email: {{email?.value}}</h3>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+
+      <ion-item>
+        <button (click)="doCall(contact)" clear item-left>
+          <ion-icon name="call-outline"></ion-icon>
+          Call
+        </button>
+        <button (click)="doText(contact)" clear item-left>
+          <ion-icon name="text-outline"></ion-icon>
+          Text
+        </button>
+
+        <button (click)="openContactShare(contact)" clear item-right>
+          <ion-icon name="share"></ion-icon>
+          Share
+        </button>
+      </ion-item>
+
+    </ion-card>
+  </ion-list>
+</ion-content>

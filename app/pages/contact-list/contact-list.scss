@@ -1,0 +1,17 @@
+.contact-list {
+
+  ion-card.contact ion-card-header .item {
+    padding: 12px;
+  }
+
+  ion-card.contact ion-card-content .list {
+    margin: 0;
+  }
+
+  ion-card.contact ion-card-header,
+  ion-card.contact ion-card-content,
+  ion-card.contact ion-card-content .list ion-item-content, {
+    padding: 0;
+  }
+
+}
