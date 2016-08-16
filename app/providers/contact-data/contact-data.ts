@@ -15,10 +15,13 @@ export class ContactData {
 
     Contacts.find(['name','emails','phoneNumbers'], opt)
       .then((contacts) => {
+        console.log("successfully loaded contacts");
+        console.log(contacts);
         this.contacts = contacts;
         completeCallBack();
       })
       .catch((err) => {
+        console.log("failed to load contacts");
         console.error(err);
         failComeBack(err);
       });
