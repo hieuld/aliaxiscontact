@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Contact, Contacts, ContactFindOptions, ContactField } from 'ionic-native';
+import { Lib } from '../../providers/lib/lib';
 
 @Injectable()
 export class ContactData {
@@ -15,8 +16,16 @@ export class ContactData {
 
     Contacts.find(['name','emails','phoneNumbers'], opt)
       .then((contacts) => {
-        console.log("successfully loaded contacts");
+        console.log("successfully loaded contacts ...........");
         console.log(contacts);
+
+        for (var i = 0; i < contacts.length; i++) {
+          var c = contacts[i];
+          if (Lib.hasElementArray(c.photos)) {
+            console.log('photos = ');
+            console.log(c.photos[0].value);
+          }
+        }
         this.contacts = contacts;
         completeCallBack();
       })

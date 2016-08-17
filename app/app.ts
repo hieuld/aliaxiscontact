@@ -63,8 +63,14 @@ class MyApp {
             StatusBar.styleDefault();
             // try to login
             this.userData.login(
-              () => {},
-              () => {}
+              () => {
+                console.log('login successfully ..........');
+                this.enableMenu(true);
+              },
+              () => {
+                console.log('login failed ..........');
+                this.enableMenu(false);
+              }
             );
         });
 

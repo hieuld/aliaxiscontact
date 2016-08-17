@@ -3,6 +3,7 @@ import { Events, ActionSheet, NavController, Alert } from 'ionic-angular';
 import { Toast } from 'ionic-native';
 import { UserData } from '../../providers/user-data/user-data';
 import { ContactData } from '../../providers/contact-data/contact-data';
+import { Lib } from '../../providers/lib/lib';
 
 @Component({
     templateUrl: 'build/pages/user-list/user-list.html'
@@ -32,13 +33,18 @@ export class UserListPage {
 
     doSubscribe() {
       this.events.subscribe('users:change', (userEventData) => {
-        console.log('Users change from page');
-        if (userEventData[0] instanceof Array) {
-          this.users = userEventData[0];
-          this.users = this.userData.getUsers();
-        }
-        console.log(this.users);
+
+        if (!Lib.hasElementArray(userEventData)) return;
+
+        var newUsers = userEventData[0];
+        var len = newUsers.length;
+
+        (len === 0) ? (this.users.length = 0) : (this.users = newUsers);
       });
+    }
+
+    setUsers(users) {
+      this.users = users;
     }
 
     doImport(user) {
@@ -55,6 +61,24 @@ export class UserListPage {
           console.log('Completed');
         }
       );
+    }
+
+    doCall(user) {
+
+      if (!Lib.hasValue(user)) {console.log('user = null'); return; }
+      if (!Lib.hasValue(user.mobile)) {console.log('no phone number'); return; }
+
+      console.log('calling ... ' + user.mobile);
+      Lib.call(user.mobile);
+    }
+
+    doText(user) {
+
+      if (!Lib.hasValue(user)) {console.log('user = null'); return; }
+      if (!Lib.hasValue(user.mobile)) {console.log('no phone number'); return; }
+
+      console.log('sms ... ' + user.mobile);
+      Lib.call(user.mobile);
     }
 
     openUserShare(user) {

@@ -24,30 +24,26 @@ export class ContactListPage {
   doCall(contact) {
 
     if (!Lib.hasValue(contact)) {console.log('contact = null'); return; }
-    if (!Lib.hasValue(contact.phoneNumbers)) {console.log('no phone number'); return; }
-    if (contact.phoneNumbers.length === 0) {console.log('no phone number'); return; }
+    if (!Lib.hasElementArray(contact.phoneNumbers)) {console.log('no phone number'); return; }
 
     var phoneNum = contact.phoneNumbers[0];
     if (!Lib.hasValue(phoneNum.value)) {console.log('no phone number'); return; }
 
     var num = phoneNum.value;
     console.log('calling ... ' + num);
-    //window.location = ;
-    window.open('tel:' + num, '_system');
+    Lib.call(num);
   }
 
   doText(contact) {
     if (!Lib.hasValue(contact)) {console.log('contact = null'); return; }
-    if (!Lib.hasValue(contact.phoneNumbers)) {console.log('no phone number'); return; }
-    if (contact.phoneNumbers.length === 0) {console.log('no phone number'); return; }
+    if (!Lib.hasElementArray(contact.phoneNumbers)) {console.log('no phone number'); return; }
 
     var phoneNum = contact.phoneNumbers[0];
     if (!Lib.hasValue(phoneNum.value)) {console.log('no phone number'); return; }
 
     var num = phoneNum.value;
     console.log('calling ... ' + num);
-    //window.location = ;
-    window.open('sms:' + num, '_system');
+    Lib.text(num);
 
   }
 

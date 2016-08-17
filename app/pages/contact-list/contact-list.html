@@ -14,8 +14,9 @@
       <ion-card-header>
         <ion-item class="item-borderless">
           <ion-avatar item-left>
-            <!-- <img [src]="contact.photos[0]" *ngIf="contact.photos && contact.photos.length > 0"> -->
-            <img src="img/user.svg">
+            <img src="img/user.svg" *ngIf="!contact.photos">
+            <!-- <img src={{contact.photos[0]?.value}} *ngIf="contact.photos && contact.photos.length > 0"> -->
+            <!-- <img src="img/user.svg"> -->
           </ion-avatar>
           {{contact?.name?.givenName}} {{contact?.name?.familyName}}
         </ion-item>

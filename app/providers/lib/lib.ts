@@ -9,9 +9,20 @@ export class Lib {
     return obj && obj !== 'null' && obj !== 'undefined';
   }
 
-  /*
-  static call(phoneNumber) {
-    window.location(phoneNumber);
+  static isArray(arr) {
+    return this.hasValue(arr) && arr instanceof Array;
   }
-  */
+
+  static hasElementArray(arr) {
+
+    return this.isArray(arr) && arr.length > 0;
+  }
+
+  static call(num) {
+    window.open('tel:' + num, '_system');
+  }
+
+  static text(num) {
+    window.open('sms:' + num, '_system');
+  }
 }
