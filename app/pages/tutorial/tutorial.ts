@@ -17,22 +17,16 @@ export class TutorialPage {
       });
 
       this.nav.present(loading);
-      /*
-      console.log(loading.getContent());
-      loading.setContent('hello world');
-      console.log(loading.getContent());
-
-      setTimeout(() => {
-        loading.dismiss();
-      }, 5000);
-      */
 
       this.contactData.loadContacts(
         () => {
-          setTimeout(() => {
-            loading.dismiss();
-            this.startApp();
-          }, 1000);
+          // setTimeout(() => {
+          //   loading.dismiss();
+          //   this.startApp();
+          // }, 1000);
+          console.log('miljaar de doeme');
+          loading.dismiss();
+          this.startApp();
         },
         err => {
           console.error(err);
@@ -80,19 +74,22 @@ export class TutorialPage {
     }
 
     show1() {
+      console.log('show1');
       this.presentLoadingDefault();
     }
 
     show2() {
+      console.log('show2');
       this.presentLoadingCustom();
     }
 
     show3() {
+      console.log('show3');
       this.presentLoadingText();
     }
 
     ionViewDidEnter() {
-      console.log('ionViewDidEnter')
+      console.log('Tutorial ionViewDidEnter');
       this.menu.enable(false);
       this.show1();
     }

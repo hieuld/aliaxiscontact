@@ -11,6 +11,29 @@
   <div padding-top text-center *ngIf="username">
     <img src="http://www.gravatar.com/avatar?d=mm&s=140">
     <h2>{{username}}</h2>
+    <!-- <ion-card-content class="outer-content">
+      <ion-list>
+        <ion-item>
+          <h3>Email:
+            {{user.mail}}</h3>
+        </ion-item>
+        <ion-item>
+          <h3>Mobile:
+            {{user.mobile}}</h3>
+        </ion-item>
+        <ion-item>
+          <h3>Phone (fix):
+            {{user.telephoneNumber}}</h3>
+        </ion-item>
+        <ion-item>
+          <h3>Job Title: {{user.jobTitle}}</h3>
+        </ion-item>
+        <ion-item>
+          <h3>Department:
+            {{user.department}}</h3>
+        </ion-item>
+      </ion-list>
+    </ion-card-content> -->
     <ion-list inset>
       <button ion-item (click)="logout()">Logout</button>
     </ion-list>

@@ -26,7 +26,7 @@ interface PageObj {
 
 @Component({
   templateUrl: 'build/app.html',
-  providers:[UserData, ContactData]
+  providers: [UserData, ContactData]
 })
 
 class MyApp {
@@ -48,15 +48,15 @@ class MyApp {
         { title: 'Login', component: TabsPage, icon: 'log-in' },
     ];
 
-    rootPage: any = TutorialPage;
+    rootPage: any = TabsPage;
 
     constructor(
         private menu: MenuController,
         private events: Events,
         private userData: UserData,
-        //private contactData: ContactData,
+        // private contactData: ContactData,
         platform: Platform
-    ){
+    ) {
         // Call any initial plugins when ready
         platform.ready().then(() => {
 
@@ -65,6 +65,13 @@ class MyApp {
             this.userData.login(
               () => {
                 console.log('login successfully ..........');
+                ContactData.prototype.loadContacts(() => {
+                    console.log('contacts were empty, reloading them now.');
+                  },
+                    err => {
+                      console.error(err);
+                    }
+                  );
                 this.enableMenu(true);
               },
               () => {
@@ -77,7 +84,7 @@ class MyApp {
         this.listenToLoginEvents();
     }
 
-    openPage(page: PageObj){
+    openPage (page: PageObj) {
         // the nav component was found using @ViewChild(Nav)
         // reset the nav to remove previous pages and only have this page
         // we wouldn't want the back button to show in this scenario
@@ -94,8 +101,7 @@ class MyApp {
               () => {},
               () => {}
             );
-        }
-        else if (page.title === 'Login') {
+        } else if (page.title === 'Login') {
 
             this.userData.login(
               () => {},

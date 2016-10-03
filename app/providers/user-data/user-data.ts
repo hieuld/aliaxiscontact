@@ -17,15 +17,15 @@ export class UserData {
 
     var context = new Microsoft.ADAL.AuthenticationContext(Conf.authority);
     context.tokenCache.readItems().then(items => {
-        //- Attem to get from the cache
+        // - Attem to get from the cache
         if (items.length > 0) {
             var authority = items[0].authority;
             context = new Microsoft.ADAL.AuthenticationContext(authority);
         }
 
-        //- Attempt to authorize user silently
+        // - Attempt to authorize user silently
         context.acquireTokenSilentAsync(Conf.resourceUri, Conf.clientId)
-          .then(completeCallBack,failCallBack);
+          .then(completeCallBack, failCallBack);
     });
   }
 
@@ -70,17 +70,17 @@ export class UserData {
     return this.users;
   }
 
-  fetchUsersWithAuth(auth, completeCallBack, failCallBack){
+  fetchUsersWithAuth (auth, completeCallBack, failCallBack) {
 
     // success then load
-    var url = Conf.resourceUri + "/" + auth.tenantId + "/users?api-version=" + Conf.graphApiVersion;
+    var url = Conf.resourceUri + '/' + auth.tenantId + '/users?api-version=' + Conf.graphApiVersion;
     var hed: Headers = new Headers();
     hed.set('Content-type', 'application/json');
     hed.append('Authorization', 'Bearer ' + auth.accessToken);
-    var opt : RequestOptions = new RequestOptions({headers:hed});
-    this.http.get(url, opt).map((res:Response) => res.json())
+    var opt: RequestOptions = new RequestOptions({headers: hed});
+    this.http.get(url, opt).map((res: Response) => res.json())
     .subscribe(
-        data => { var users = data.value; completeCallBack(users); },
+        data => {var users = data.value; completeCallBack(users); },
         err => { console.error(err); failCallBack(err); },
         () => { console.log('done');  }
     );
@@ -99,7 +99,7 @@ export class UserData {
         );
       },
       failCallBack
-    )
+    );
   }
 
   clearCache(completeCallBack, failCallBack) {
@@ -108,7 +108,7 @@ export class UserData {
       context.tokenCache.clear().then(
         completeCallBack,
         err => {
-          console.log("Failed to clear cache: " + err);
+          console.log('Failed to clear cache: ' + err);
           failCallBack(err);
         }
       );
@@ -129,11 +129,11 @@ export class UserData {
     this.getAuth(completeCallBack,
       err => {
         var context = new Microsoft.ADAL.AuthenticationContext(Conf.authority);
-        //- We require user cridentials so triggers authentication dialog
+        // - We require user cridentials so triggers authentication dialog
         context.acquireTokenAsync(Conf.resourceUri, Conf.clientId, Conf.redirectUri)
             .then(completeCallBack, failCallBack);
       }
-    )
+    );
   }
 
 }

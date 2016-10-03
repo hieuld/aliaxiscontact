@@ -13,12 +13,12 @@ export class ContactListPage {
   constructor(private nav: NavController, private contactData: ContactData) {}
 
   ionViewWillEnter() {
-    console.log('ionViewWillEnter');
+    console.log('Contact-list ionViewWillEnter');
     this.contacts = this.contactData.getContacts();
   }
 
   ionViewDidLeave() {
-    console.log('ionViewDidLeave');
+    console.log('Contact-list ionViewDidLeave');
   }
 
   doCall(contact) {
@@ -47,7 +47,7 @@ export class ContactListPage {
 
   }
 
-  openUserShare(user) {
+  openContactShare(user) {
       let actionSheet = ActionSheet.create({
           title: 'Share ' + user.name,
           buttons: [

@@ -20,7 +20,7 @@ export class AccountPage {
     getUsername() {
         var _this = this;
         this.userData.getUsername().then((username) => {
-            console.log('username = ' + username);
+          //  console.log('username = ' + username);
             _this.username = username;
         });
     }

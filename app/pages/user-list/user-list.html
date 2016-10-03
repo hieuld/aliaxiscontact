@@ -13,7 +13,6 @@
   </ion-navbar>
 </ion-header>
 
-
 <ion-content class="outer-content">
   <!-- <ion-card *ngFor="let user of users" class="user"> -->
   <ion-list [virtualScroll]="users" class="user-list">
@@ -31,20 +30,33 @@
       <ion-card-content class="outer-content">
         <ion-list>
           <ion-item>
-            <h3>mobile: {{user.mobile}}</h3>
+            <h3>Email:
+              {{user.mail}}</h3>
           </ion-item>
           <ion-item>
-            <h3>Department: {{user.department}}</h3>
+            <h3>Mobile:
+              {{user.mobile}}</h3>
+          </ion-item>
+          <ion-item>
+            <h3>Phone (fix):
+              {{user.telephoneNumber}}</h3>
+          </ion-item>
+          <ion-item>
+            <h3>Job Title: {{user.jobTitle}}</h3>
+          </ion-item>
+          <ion-item>
+            <h3>Department:
+              {{user.department}}</h3>
           </ion-item>
         </ion-list>
       </ion-card-content>
 
       <ion-item>
-        <button (click)="doCall(contact)" clear item-left>
+        <button (click)="doCall(user)" clear item-left>
           <ion-icon name="call-outline"></ion-icon>
           Call
         </button>
-        <button (click)="doText(contact)" clear item-left>
+        <button (click)="doText(user)" clear item-left>
           <ion-icon name="text-outline"></ion-icon>
           Text
         </button>

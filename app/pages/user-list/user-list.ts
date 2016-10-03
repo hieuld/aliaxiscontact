@@ -18,17 +18,29 @@ export class UserListPage {
       private userData: UserData,
       private contactData: ContactData,
       private events: Events
-    ){}
+    ) {}
 
     ionViewWillEnter() {
-      console.log('ionviewWillEnter');
+      console.log('user-list ionviewWillEnter');
       this.users = this.userData.getUsers();
+      if (this.users.length > 0) {
+        return this.users;
+      } else {
+        this.userData.fetchUsers(() => {
+          console.log('uesrs were empty, reloading them now.');
+        },
+          err => {
+            console.error(err);
+          }
+        );
+      }      console.log('users');
+      console.log(this.users);
       this.doSubscribe();
     }
 
     ionViewDidLeave() {
-      console.log('ionViewDidLeave');
-      this.events.unsubscribe('users:change',()=>{});
+      console.log('user-list ionViewDidLeave');
+      this.events.unsubscribe('users:change', () => {} );
     }
 
     doSubscribe() {
@@ -78,7 +90,7 @@ export class UserListPage {
       if (!Lib.hasValue(user.mobile)) {console.log('no phone number'); return; }
 
       console.log('sms ... ' + user.mobile);
-      Lib.call(user.mobile);
+      Lib.text(user.mobile);
     }
 
     openUserShare(user) {
