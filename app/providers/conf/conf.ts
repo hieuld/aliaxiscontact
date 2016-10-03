@@ -1,9 +1,15 @@
 import { Injectable } from '@angular/core';
+import {NavController, Alert, Platform} from 'ionic-angular';
+
+declare var navigator: any;
+declare var Connection: any;
 
 @Injectable()
 export class Conf {
 
-  constructor() { throw new Error('Cannot new this class'); }
+  constructor() {       if (navigator.connection.type === Connection.NONE) {
+           alert('test'); console.log('no inet'); }
+           throw new Error('Cannot new this class'); }
 
   static authority          = 'https://login.windows.net/common';
   static redirectUri        = 'http://DevoteamContactSearcherApp';

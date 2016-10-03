@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Events, ActionSheet, NavController, Alert } from 'ionic-angular';
+import { Events, Loading, ActionSheet, NavController, Alert } from 'ionic-angular';
 import { Toast } from 'ionic-native';
 import { UserData } from '../../providers/user-data/user-data';
 import { ContactData } from '../../providers/contact-data/contact-data';
@@ -22,19 +22,18 @@ export class UserListPage {
 
     ionViewWillEnter() {
       console.log('user-list ionviewWillEnter');
+
       this.users = this.userData.getUsers();
-      if (this.users.length > 0) {
-        return this.users;
-      } else {
+      if (this.users.length <= 0) {
         this.userData.fetchUsers(() => {
-          console.log('uesrs were empty, reloading them now.');
-        },
+        console.log('users were empty, reloading them now.');
+       },
           err => {
             console.error(err);
           }
         );
-      }      console.log('users');
-      console.log(this.users);
+      }
+
       this.doSubscribe();
     }
 

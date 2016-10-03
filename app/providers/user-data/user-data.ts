@@ -49,7 +49,7 @@ export class UserData {
   }
 
   logout(completeCallBack, failCallBack) {
-
+this.users = [];
       this.clearCache(
         () => {
           this.storage.remove('username');
@@ -63,6 +63,7 @@ export class UserData {
 
   setUsers(users) {
       this.users = users;
+      this.storage.set('users', users);
       this.events.publish('users:change', users);
   }
 
@@ -70,6 +71,9 @@ export class UserData {
     return this.users;
   }
 
+  getLocalUsers() {
+    return this.storage.get('users').then(value => { return value; } );
+  }
   fetchUsersWithAuth (auth, completeCallBack, failCallBack) {
 
     // success then load
