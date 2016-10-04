@@ -25,11 +25,19 @@ export class UserListPage {
 
       this.users = this.userData.getUsers();
       if (this.users.length <= 0) {
+        let loading = Loading.create({
+          content: 'Loading Contact...'
+        });
+
+        this.nav.present(loading);
+
         this.userData.fetchUsers(() => {
         console.log('users were empty, reloading them now.');
+        loading.dismiss();
        },
           err => {
             console.error(err);
+            loading.dismiss();
           }
         );
       }

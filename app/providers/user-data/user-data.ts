@@ -84,7 +84,7 @@ this.users = [];
     var opt: RequestOptions = new RequestOptions({headers: hed});
     this.http.get(url, opt).map((res: Response) => res.json())
     .subscribe(
-        data => {var users = data.value; completeCallBack(users); },
+        data => {var users = data.value; console.log('#users' + data.value.length); completeCallBack(users); },
         err => { console.error(err); failCallBack(err); },
         () => { console.log('done');  }
     );
