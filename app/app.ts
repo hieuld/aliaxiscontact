@@ -7,6 +7,7 @@ import { ionicBootstrap,
   Nav,
   Alert,
   NavController,
+  Loading,
   Platform }     from 'ionic-angular';
 
 import { StatusBar }    from 'ionic-native';
@@ -62,29 +63,32 @@ class MyApp {
     // private contactData: ContactData,
     platform: Platform
   ) {
+
     // Call any initial plugins when ready
     platform.ready().then(() => {
-
+      var t0 = performance.now();
+      var t1 = 0;
       StatusBar.styleDefault();
       // try to login
+      let loading = Loading.create({
+        content: 'Logging in...'
+      });
+
+      this.nav.present(loading);
       this.userData.login(
         () => {
           console.log('login successfully ..........');
-          ContactData.prototype.loadContacts(() => {
-            console.log('contacts were empty, reloading them now.');
-          },
-            err => {
-              console.error(err);
-            }
-          );
           this.enableMenu(true);
+          t1 = performance.now();
+          console.log('Call to log in took ' + (t1 - t0) / 1000 + ' seconds.');
+          loading.dismiss();
         },
         () => {
           console.log('login failed ..........');
+          loading.dismiss();
           this.enableMenu(false);
         }
       );
-
     });
 
     this.listenToLoginEvents();

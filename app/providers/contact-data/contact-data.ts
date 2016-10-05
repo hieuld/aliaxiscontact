@@ -35,6 +35,7 @@ export class ContactData {
   }
 
   getContacts() {
+    console.log('#contacts', this.contacts.length);
     if (this.contacts.length > 0) {
       return this.contacts;
     } else {
@@ -75,7 +76,17 @@ export class ContactData {
 
   importUser(user) {
     console.log('import user');
-    console.log(user);
+    var contact = Contacts.create();
+    if (user.displayName != null) { contact.displayName = user.displayName; }
+    // if (user.mail != null) { contact.emails = [user.mail]; }
+    if (user.telephoneNumber != null) { contact.phoneNumbers = [user.mobile, user.telephoneNumber];  } else { contact.phoneNumbers = [user.mobile]; }
+    if (user.department != null) { contact.organizations = user.department; }
+    // contact.save();
+    console.log(contact.displayName);
+    // console.log(contact.emails);
+    console.log(contact.phoneNumbers[0]);
+    console.log(contact.phoneNumbers[1]);
+    console.log(contact.organizations);
   }
 
 }

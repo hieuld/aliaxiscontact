@@ -8,24 +8,24 @@ declare var Microsoft: any;
 
 @Injectable()
 export class UserData {
-  storage            = new Storage(LocalStorage);
-  users              = [];
+  storage = new Storage(LocalStorage);
+  users = [];
 
-  constructor(private events: Events, private http: Http) {}
+  constructor(private events: Events, private http: Http) { }
 
   getAuth(completeCallBack, failCallBack) {
 
     var context = new Microsoft.ADAL.AuthenticationContext(Conf.authority);
     context.tokenCache.readItems().then(items => {
-        // - Attem to get from the cache
-        if (items.length > 0) {
-            var authority = items[0].authority;
-            context = new Microsoft.ADAL.AuthenticationContext(authority);
-        }
+      // - Attem to get from the cache
+      if (items.length > 0) {
+        var authority = items[0].authority;
+        context = new Microsoft.ADAL.AuthenticationContext(authority);
+      }
 
-        // - Attempt to authorize user silently
-        context.acquireTokenSilentAsync(Conf.resourceUri, Conf.clientId)
-          .then(completeCallBack, failCallBack);
+      // - Attempt to authorize user silently
+      context.acquireTokenSilentAsync(Conf.resourceUri, Conf.clientId)
+        .then(completeCallBack, failCallBack);
     });
   }
 
@@ -49,48 +49,68 @@ export class UserData {
   }
 
   logout(completeCallBack, failCallBack) {
-this.users = [];
-      this.clearCache(
-        () => {
-          this.storage.remove('username');
-          this.events.publish('user:logout');
-          this.setUsers([]);
-          completeCallBack();
-        },
-        failCallBack
-      );
+    this.users = [];
+    this.clearCache(
+      () => {
+        this.storage.remove('username');
+        this.events.publish('user:logout');
+        this.setUsers([]);
+        completeCallBack();
+      },
+      failCallBack
+    );
   }
 
   setUsers(users) {
-      this.users = users;
-      this.storage.set('users', users);
-      this.events.publish('users:change', users);
+    this.users = users;
+    this.storage.set('users', users);
+    this.events.publish('users:change', users);
   }
 
   getUsers() {
-    return this.users;
+    if (this.users.length === 0) {
+      this.fetchUsers(() => {
+        console.log('users were empty, reloading them now.');
+      },
+        err => {
+          console.error(err);
+        });
+    } else {
+      return this.users;
+    }
   }
 
   getLocalUsers() {
-    return this.storage.get('users').then(value => { return value; } );
+    var localUsers = [];
+    var str = '';
+    this.storage.get('users').then(value => {
+      localUsers = value; console.log('#value', value.length); for (var property in value) {
+        str += property + ': ' + value[str] + '; ';
+      }; console.log(str);
+    });
+    console.log('get', this.storage.get('users'));
+
+    return localUsers;
   }
-  fetchUsersWithAuth (auth, completeCallBack, failCallBack) {
+  fetchUsersWithAuth(auth, completeCallBack, failCallBack) {
 
     // success then load
     var url = Conf.resourceUri + '/' + auth.tenantId + '/users?api-version=' + Conf.graphApiVersion;
     var hed: Headers = new Headers();
     hed.set('Content-type', 'application/json');
     hed.append('Authorization', 'Bearer ' + auth.accessToken);
-    var opt: RequestOptions = new RequestOptions({headers: hed});
+    var opt: RequestOptions = new RequestOptions({ headers: hed });
     this.http.get(url, opt).map((res: Response) => res.json())
-    .subscribe(
-        data => {var users = data.value; console.log('#users' + data.value.length); completeCallBack(users); },
-        err => { console.error(err); failCallBack(err); },
-        () => { console.log('done');  }
-    );
+      .subscribe(
+      data => { var users = data.value; console.log('#users' + data.value.length); completeCallBack(users); },
+      err => { console.error(err); failCallBack(err); },
+      () => { console.log('done'); }
+      );
   }
 
   fetchUsers(completeCallBack, failCallBack) {
+    var t0 = performance.now();
+    var t1 = 0;
     this.getAuth(
       auth => {
         this.fetchUsersWithAuth(
@@ -98,6 +118,8 @@ this.users = [];
           users => {
             this.setUsers(users);
             completeCallBack(users);
+            t1 = performance.now();
+            console.log('Call to fetchusers took ' + (t1 - t0) / 1000 + ' seconds.');
           },
           failCallBack
         );
@@ -108,24 +130,24 @@ this.users = [];
 
   clearCache(completeCallBack, failCallBack) {
 
-      var context = new Microsoft.ADAL.AuthenticationContext(Conf.authority);
-      context.tokenCache.clear().then(
-        completeCallBack,
-        err => {
-          console.log('Failed to clear cache: ' + err);
-          failCallBack(err);
-        }
-      );
+    var context = new Microsoft.ADAL.AuthenticationContext(Conf.authority);
+    context.tokenCache.clear().then(
+      completeCallBack,
+      err => {
+        console.log('Failed to clear cache: ' + err);
+        failCallBack(err);
+      }
+    );
   }
 
   setUsername(username) {
-      this.storage.set('username', username);
+    this.storage.set('username', username);
   }
 
   getUsername() {
-      return this.storage.get('username').then(value => {
-          return value;
-      });
+    return this.storage.get('username').then(value => {
+      return value;
+    });
   }
 
   authenticate(completeCallBack, failCallBack) {
@@ -135,7 +157,7 @@ this.users = [];
         var context = new Microsoft.ADAL.AuthenticationContext(Conf.authority);
         // - We require user cridentials so triggers authentication dialog
         context.acquireTokenAsync(Conf.resourceUri, Conf.clientId, Conf.redirectUri)
-            .then(completeCallBack, failCallBack);
+          .then(completeCallBack, failCallBack);
       }
     );
   }

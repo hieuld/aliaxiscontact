@@ -6,138 +6,145 @@ import { ContactData } from '../../providers/contact-data/contact-data';
 import { Lib } from '../../providers/lib/lib';
 
 @Component({
-    templateUrl: 'build/pages/user-list/user-list.html'
+  templateUrl: 'build/pages/user-list/user-list.html'
 })
 
 export class UserListPage {
-    actionSheet: ActionSheet;
-    users = [];
+  actionSheet: ActionSheet;
+  users = [];
 
-    constructor(
-      private nav: NavController,
-      private userData: UserData,
-      private contactData: ContactData,
-      private events: Events
-    ) {}
+  constructor(
+    private nav: NavController,
+    private userData: UserData,
+    private contactData: ContactData,
+    private events: Events
+  ) { }
 
-    ionViewWillEnter() {
-      console.log('user-list ionviewWillEnter');
+  ionViewWillEnter() {
+    console.log('user-list ionviewWillEnter');
+    if (this.users.length === 0) { this.getUsers(); }
+    this.doSubscribe();
+  }
 
-      this.users = this.userData.getUsers();
-      if (this.users.length <= 0) {
-        let loading = Loading.create({
-          content: 'Loading Contact...'
-        });
-
-        this.nav.present(loading);
-
-        this.userData.fetchUsers(() => {
-        console.log('users were empty, reloading them now.');
-        loading.dismiss();
-       },
-          err => {
-            console.error(err);
-            loading.dismiss();
-          }
-        );
-      }
-
-      this.doSubscribe();
-    }
-
-    ionViewDidLeave() {
-      console.log('user-list ionViewDidLeave');
-      this.events.unsubscribe('users:change', () => {} );
-    }
-
-    doSubscribe() {
-      this.events.subscribe('users:change', (userEventData) => {
-
-        if (!Lib.hasElementArray(userEventData)) return;
-
-        var newUsers = userEventData[0];
-        var len = newUsers.length;
-
-        (len === 0) ? (this.users.length = 0) : (this.users = newUsers);
+  getUsers() {
+    // this.users = this.userData.getUsers();
+    // this.users = this.userData.getLocalUsers();
+    // console.log('#users', this.users.length);
+    if (this.users.length <= 0) {
+      let loading = Loading.create({
+        content: 'Loading Users...'
       });
-    }
 
-    setUsers(users) {
-      this.users = users;
-    }
+      this.nav.present(loading);
 
-    doImport(user) {
-      console.log('doImport');
-      Toast.show('Contact saved!', 'short', 'top').subscribe(
-        toast => {
-          console.log('Success', toast);
-          this.contactData.importUser(user);
-        },
-        error => {
-          console.log('Error', error);
-        },
-        () => {
-          console.log('Completed');
+      this.userData.fetchUsers(res => {
+        //  console.log('users were empty, reloading them now.');
+        this.users = res;
+        console.log('res.lengt', res.length);
+        Toast.show('Users have been loaded', '5000', 'center');
+        loading.dismiss();
+      },
+        err => {
+          console.error(err);
+          loading.dismiss();
         }
       );
     }
+  }
 
-    doCall(user) {
+  ionViewDidLeave() {
+    console.log('user-list ionViewDidLeave');
+    this.events.unsubscribe('users:change', () => { });
+  }
 
-      if (!Lib.hasValue(user)) {console.log('user = null'); return; }
-      if (!Lib.hasValue(user.mobile)) {console.log('no phone number'); return; }
+  doSubscribe() {
+    this.events.subscribe('users:change', (userEventData) => {
 
-      console.log('calling ... ' + user.mobile);
-      Lib.call(user.mobile);
-    }
+      if (!Lib.hasElementArray(userEventData)) return;
 
-    doText(user) {
+      var newUsers = userEventData[0];
+      var len = newUsers.length;
 
-      if (!Lib.hasValue(user)) {console.log('user = null'); return; }
-      if (!Lib.hasValue(user.mobile)) {console.log('no phone number'); return; }
+      (len === 0) ? (this.users.length = 0) : (this.users = newUsers);
+    });
+  }
 
-      console.log('sms ... ' + user.mobile);
-      Lib.text(user.mobile);
-    }
+  setUsers(users) {
+    this.users = users;
+  }
 
-    openUserShare(user) {
-        let actionSheet = ActionSheet.create({
-            title: 'Share ' + user.name,
-            buttons: [
-              {
-                text: 'Copy Link',
-                handler: () => {
-                  console.log('Copy link clicked on https://twitter.com/' + user.twitter);
-                  if (window['cordova'] && window['cordova'].plugins.clipboard) {
-                    window['cordova'].plugins.clipboard.copy('https://twitter.com/' + user.twitter);
-                  }
-                }
-              },
-              {
-                text: 'Share via ...',
-                handler: () => {
-                  console.log('Share via clicked');
-                }
-              },
-              {
-                text: 'Cancel',
-                role: 'cancel',
-                handler: () => {
-                  console.log('Cancel clicked');
-                }
-              }
-            ]
-        });
+  doImport(user) {
+    console.log('doImport');
+    Toast.show('Contact saved!', 'short', 'top').subscribe(
+      toast => {
+      //  console.log('Success', toast);
+        this.contactData.importUser(user);
+      },
+      error => {
+        console.log('Error', error);
+      },
+      () => {
+        console.log('Completed');
+      }
+    );
+  }
 
-        this.nav.present(actionSheet);
-    }
+  doCall(user) {
 
-    doAlert(message: string) {
-        let alert = Alert.create({
-            title: 'Message',
-            subTitle: message,
-            buttons: ['OK']
-        });
-        this.nav.present(alert);
-    }
+    if (!Lib.hasValue(user)) { console.log('user = null'); return; }
+    if (!Lib.hasValue(user.mobile)) { console.log('no phone number'); return; }
+
+    console.log('calling ... ' + user.mobile);
+    Lib.call(user.mobile);
+  }
+
+  doText(user) {
+
+    if (!Lib.hasValue(user)) { console.log('user = null'); return; }
+    if (!Lib.hasValue(user.mobile)) { console.log('no phone number'); return; }
+
+    console.log('sms ... ' + user.mobile);
+    Lib.text(user.mobile);
+  }
+
+  openUserShare(user) {
+    let actionSheet = ActionSheet.create({
+      title: 'Share ' + user.name,
+      buttons: [
+        {
+          text: 'Copy Link',
+          handler: () => {
+            console.log('Copy link clicked on https://twitter.com/' + user.twitter);
+            if (window['cordova'] && window['cordova'].plugins.clipboard) {
+              window['cordova'].plugins.clipboard.copy('https://twitter.com/' + user.twitter);
+            }
+          }
+        },
+        {
+          text: 'Share via ...',
+          handler: () => {
+            console.log('Share via clicked');
+          }
+        },
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: () => {
+            console.log('Cancel clicked');
+          }
+        }
+      ]
+    });
+
+    this.nav.present(actionSheet);
+  }
+
+  doAlert(message: string) {
+    let alert = Alert.create({
+      title: 'Message',
+      subTitle: message,
+      buttons: ['OK']
+    });
+    this.nav.present(alert);
+  }
 }
