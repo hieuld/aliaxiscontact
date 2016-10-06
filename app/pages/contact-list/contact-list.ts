@@ -64,7 +64,6 @@ export class ContactListPage {
         }
       });
     }
-
     this.prevValue = val;
   }
 

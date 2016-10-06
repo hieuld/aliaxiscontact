@@ -23,7 +23,7 @@ export class ContactData {
         //     console.log('photos = ' + c.photos[0].value);
         //   }
         // }
-        this.contacts = contacts;
+        this.setContacts(contacts);
         console.log('successfully loaded contacts ...........');
         completeCallBack();
       })
@@ -32,6 +32,13 @@ export class ContactData {
         console.error(err);
         failComeBack(err);
       });
+  }
+
+  setContacts(contacts) {
+    console.log(contacts[0].displayName);
+    this.contacts = contacts.sort((n1, n2) => n1.displayName - n2.displayName);
+    console.log(this.contacts[0].displayName);
+// this.contacts = contacts;
   }
 
   getContacts() {
@@ -51,8 +58,6 @@ export class ContactData {
     );
   }
 
-
-
   pickupAContact(completeCallBack, failComeBack) {
     Contacts.pickContact()
       .then((contact) => {
@@ -68,9 +73,9 @@ export class ContactData {
   saveContact(test, user) {
 
     if (test !== undefined) {
-      console.log('contact bestaat al');
+      console.log('contact already exists');
     } else {
-      console.log('contact bestaat nog niet');
+      console.log('new contact');
       var contact = this.createContact(user);
       contact.save().then((contact) => {
         alert('saved');
@@ -78,7 +83,7 @@ export class ContactData {
         alert(error);
       });
       this.contacts = [];
-      this.contacts = this.getContacts();
+      this.setContacts(this.getContacts());
     }
 
   }
@@ -123,7 +128,7 @@ export class ContactData {
   importUser(user) {
     var contact;
     if (this.contacts !== undefined) {
-      this.contacts = this.getContacts();
+      this.setContacts(this.getContacts());
       test = this.findUser(user);
       this.saveContact(test, user);
 
