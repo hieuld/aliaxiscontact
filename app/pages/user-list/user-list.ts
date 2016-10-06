@@ -12,6 +12,8 @@ import { Lib } from '../../providers/lib/lib';
 export class UserListPage {
   actionSheet: ActionSheet;
   users = [];
+  savedUsers = [];
+  prevValue = '';
 
   constructor(
     private nav: NavController,
@@ -40,6 +42,7 @@ export class UserListPage {
       this.userData.fetchUsers(res => {
         //  console.log('users were empty, reloading them now.');
         this.users = res;
+        this.savedUsers = this.users;
         console.log('res.lengt', res.length);
         Toast.show('Users have been loaded', '5000', 'center');
         loading.dismiss();
@@ -73,11 +76,32 @@ export class UserListPage {
     this.users = users;
   }
 
+  searchUser(ev: any) {
+    // Reset items back to all of the items
+
+
+    // set val to the value of the searchbar
+    let val = ev.target.value;
+    if (this.prevValue.length > val.length) {
+      this.users = this.savedUsers;
+    }
+    // if the value is an empty string don't filter the items
+    if (val && val.trim() !== '') {
+      this.users = this.users.filter((item) => {
+        //  console.log(item.displayName);
+        if (item.displayName !== null) {
+          return (item.displayName.toLowerCase().indexOf(val.toLowerCase()) > -1);
+        }
+      });
+    }
+    this.prevValue = val;
+  }
+
   doImport(user) {
     console.log('doImport');
     Toast.show('Contact saved!', 'short', 'top').subscribe(
       toast => {
-      //  console.log('Success', toast);
+        //  console.log('Success', toast);
         this.contactData.importUser(user);
       },
       error => {
@@ -109,7 +133,7 @@ export class UserListPage {
 
   openUserShare(user) {
     let actionSheet = ActionSheet.create({
-      title: 'Share ' + user.name,
+      title: 'Share ' + user.displayName,
       buttons: [
         {
           text: 'Copy Link',

@@ -19,6 +19,7 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher> -->
 
+  <ion-searchbar (ionInput)="searchUser($event)"></ion-searchbar>
 
   <!-- <ion-card *ngFor="let user of users" class="user"> -->
   <ion-list [virtualScroll]="users" class="user-list">

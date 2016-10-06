@@ -35,19 +35,23 @@ export class ContactData {
   }
 
   getContacts() {
-    console.log('#contacts', this.contacts.length);
-    if (this.contacts.length > 0) {
-      return this.contacts;
-    } else {
-      this.loadContacts(() => {
-        console.log('contacts were empty, reloading them now.');
-      },
-        err => {
-          console.error(err);
-        }
-      );
+    if (this.contacts !== undefined) {
+      console.log('#contacts', this.contacts.length);
+      if (this.contacts.length > 0) {
+        return this.contacts;
+      }
     }
+    this.loadContacts(() => {
+      console.log('contacts were empty, reloading them now.');
+      return this.contacts;
+    },
+      err => {
+        console.error(err);
+      }
+    );
   }
+
+
 
   pickupAContact(completeCallBack, failComeBack) {
     Contacts.pickContact()
@@ -61,32 +65,107 @@ export class ContactData {
       });
   }
 
-  saveContact() {
-    // create a new contact
-    var contact = Contacts.create();
-    var phoneNumbers = [];
-    phoneNumbers[0] = new ContactField('work', '212-555-1234', false);
-    phoneNumbers[1] = new ContactField('mobile', '212-555-1234', true);
-    // - preferred number
-    // contact.phoneNumbers = phoneNumbers;
+  saveContact(test, user) {
 
-    // save the contact
-    contact.save();
+    if (test !== undefined) {
+      console.log('contact bestaat al');
+    } else {
+      console.log('contact bestaat nog niet');
+      var contact = this.createContact(user);
+      contact.save().then((contact) => {
+        alert('saved');
+      }, (error) => {
+        alert(error);
+      });
+      this.contacts = [];
+      this.contacts = this.getContacts();
+    }
+
+  }
+
+  createContact(user) {
+    // console.log('contact bestaat nog niet');
+    var contact = Contacts.create();
+    contact.phoneNumbers = [];
+    // contact.organizations = [];
+    contact.emails = [];
+    if (user.displayName !== null) {
+      contact.displayName = user.displayName;
+    }
+    if (user.mail != null) {
+      contact.emails.push(new ContactField('work', user.mail));
+    }
+
+    if (user.mobile !== null) {
+      var cf = new ContactField('mobile', user.mobile);
+      contact.phoneNumbers.push(cf);
+    }
+
+    if (user.telephoneNumber !== null) {
+      contact.phoneNumbers.push(new ContactField('home', user.telephoneNumber));
+
+    }
+    //  if (user.department != null) { contact.organizations = user.department; }
+    // contact.organizations.push(new ContactOrganization (user.department));
+
+    return contact;
+  }
+
+  findUser(user) {
+    for (var i = 0; i < this.contacts.length; i++) {
+      if (this.contacts[i].displayName === user.displayName) {
+        console.log(this.contacts[i].displayName);
+        return this.contacts[i];
+      }
+    }
   }
 
   importUser(user) {
-    console.log('import user');
-    var contact = Contacts.create();
-    if (user.displayName != null) { contact.displayName = user.displayName; }
-    // if (user.mail != null) { contact.emails = [user.mail]; }
-    if (user.telephoneNumber != null) { contact.phoneNumbers = [user.mobile, user.telephoneNumber];  } else { contact.phoneNumbers = [user.mobile]; }
-    if (user.department != null) { contact.organizations = user.department; }
-    // contact.save();
-    console.log(contact.displayName);
-    // console.log(contact.emails);
-    console.log(contact.phoneNumbers[0]);
-    console.log(contact.phoneNumbers[1]);
-    console.log(contact.organizations);
-  }
+    var contact;
+    if (this.contacts !== undefined) {
+      this.contacts = this.getContacts();
+      test = this.findUser(user);
+      this.saveContact(test, user);
 
+    } else {
+      var test;
+      console.log('contacts was undefined, loading them now.');
+      this.loadContacts(() => {
+        test = this.findUser(user);
+        this.saveContact(test, user);
+      },
+        err => {
+          console.error(err);
+        }
+      );
+    }
+
+
+
+    // var test = this.contacts.some(x=> x.displayName === user.displayName);
+    // console.log('-----------------------------------------------------', test);
+
+    // var test = this.contacts.find(test => test.displayName = user.displayName);
+    // console.log(test.displayName);
+
+    // var options = new ContactFindOptions();
+    // options.filter = user.displayName;
+    // options.multiple = false;
+    // options.desiredFields = ['displayName'];
+    // options.hasPhoneNumber = true;
+    // var fields = ['displayName'];
+
+    //  Contacts.find(fields, options).then((test) => {
+    // console.log(contacts);
+
+    // if (user.displayName && user.displayName.trim() !== '') {
+    //   var test = this.contacts.find((item) => {
+    //     //  console.log(item.displayName);
+    //     if (item.displayName !== null) {
+    //       return (item.displayName.toLowerCase().indexOf(user.displayName.toLowerCase()) > -1);
+    //     }
+    //   });
+    // }
+
+  }
 }

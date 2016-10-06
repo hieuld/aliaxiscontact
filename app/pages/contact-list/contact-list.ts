@@ -9,6 +9,8 @@ import { Lib } from '../../providers/lib/lib';
 export class ContactListPage {
   actionSheet: ActionSheet;
   contacts = [];
+  prevValue = '';
+  savedContacts = [];
 
   constructor(private nav: NavController, private contactData: ContactData) { }
 
@@ -16,7 +18,7 @@ export class ContactListPage {
     console.log('Contact-list ionViewWillEnter');
     // console.log('contactData.contacts.length', this.contactData.contacts.length);
     // this.contacts = this.contactData.getContacts();
-    if (this.contacts.length === 0) {
+    if (this.contacts.length === 0 || this.contacts.length !== this.contactData.contacts.length) {
       var t0 = performance.now();
       let loading = Loading.create({
         content: 'Loading Contact...'
@@ -27,6 +29,7 @@ export class ContactListPage {
       this.contactData.loadContacts(() => {
         console.log('contacts were empty, reloading them now.');
         this.contacts = this.contactData.getContacts();
+        this.savedContacts = this.contacts;
         loading.dismiss();
         t1 = performance.now();
         console.log('Call to loadcontacts took ' + (t1 - t0) / 1000 + ' seconds.');
@@ -43,6 +46,29 @@ export class ContactListPage {
 
   ionViewDidLeave() {
     console.log('Contact-list ionViewDidLeave');
+  }
+  searchContact(ev: any) {
+    // Reset items back to all of the items
+
+
+    // set val to the value of the searchbar
+    let val = ev.target.value;
+    console.log('++++++++++++++++++++value: ' + val);
+    // if the value is an empty string don't filter the items
+    if (this.prevValue.length > val.length) {
+      this.contacts = this.savedContacts;
+    }
+    if (val && val.trim() !== '') {
+      this.contacts = this.contacts.filter((item) => {
+        var name = item.name.givenName + ' ' + item.name.familyName;
+      //  console.log(name);
+        if (name !== null && name !== ' ') {
+          return (name.toLowerCase().indexOf(val.toLowerCase()) > -1);
+        }
+      });
+    }
+
+    this.prevValue = val;
   }
 
   doCall(contact) {

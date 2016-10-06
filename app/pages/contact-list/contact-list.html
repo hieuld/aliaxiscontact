@@ -9,7 +9,9 @@
 
 <ion-content class="outer-content">
   <!-- <ion-card *ngFor="let contact of contacts" class="contact"> -->
-  <ion-list [virtualScroll]="contacts" class="contact-list">
+  <ion-searchbar (ionInput)="searchContact($event)"></ion-searchbar>
+
+<ion-list [virtualScroll]="contacts" class="contact-list">
     <ion-card *virtualItem="let contact" class="contact">
       <ion-card-header>
         <ion-item class="item-borderless">
@@ -18,20 +20,20 @@
             <!-- <img src={{contact.photos[0]?.value}} *ngIf="contact.photos && contact.photos.length > 0"> -->
             <!-- <img src="img/user.svg"> -->
           </ion-avatar>
-          {{contact?.name?.givenName}} {{contact?.name?.familyName}}
+          {{contact?.displayName}}
         </ion-item>
       </ion-card-header>
 
       <ion-card-content class="outer-content">
         <ion-list>
           <ion-item ion-item *ngFor="let phoneNumber of contact.phoneNumbers">
-            <h3>{{phoneNumber?.value}}</h3>
+            <h3>{{phoneNumber?.type}}: {{phoneNumber?.value}}</h3>
           </ion-item>
           <ion-item ion-item *ngFor="let organization of contact.organizations">
             <h3>Company: {{organization?.name}}</h3>
           </ion-item>
           <ion-item ion-item *ngFor="let email of contact.emails">
-            <h3>Email: {{email?.value}}</h3>
+            <h3>{{email?.type}}: {{email?.value}}</h3>
           </ion-item>
         </ion-list>
       </ion-card-content>
