@@ -78,13 +78,10 @@ export class UserListPage {
 
   searchUser(ev: any) {
     // Reset items back to all of the items
-
-
+    this.users = this.savedUsers;
     // set val to the value of the searchbar
     let val = ev.target.value;
-    if (this.prevValue.length > val.length) {
-      this.users = this.savedUsers;
-    }
+
     // if the value is an empty string don't filter the items
     if (val && val.trim() !== '') {
       this.users = this.users.filter((item) => {

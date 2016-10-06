@@ -49,15 +49,12 @@ export class ContactListPage {
   }
   searchContact(ev: any) {
     // Reset items back to all of the items
-
+    this.contacts = this.savedContacts;
 
     // set val to the value of the searchbar
     let val = ev.target.value;
-    console.log('++++++++++++++++++++value: ' + val);
     // if the value is an empty string don't filter the items
-    if (this.prevValue.length > val.length) {
-      this.contacts = this.savedContacts;
-    }
+
     if (val && val.trim() !== '') {
       this.contacts = this.contacts.filter((item) => {
         var name = item.name.givenName + ' ' + item.name.familyName;
