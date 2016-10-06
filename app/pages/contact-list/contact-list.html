@@ -30,7 +30,10 @@
             <h3>{{phoneNumber?.type}}: {{phoneNumber?.value}}</h3>
           </ion-item>
           <ion-item ion-item *ngFor="let organization of contact.organizations">
-            <h3>Company: {{organization?.name}}</h3>
+            <h3>Job Title: {{organization?.title}}</h3>
+          </ion-item>
+            <ion-item ion-item *ngFor="let organization of contact.organizations">
+            <h3>Department: {{organization?.department}}</h3>
           </ion-item>
           <ion-item ion-item *ngFor="let email of contact.emails">
             <h3>{{email?.type}}: {{email?.value}}</h3>

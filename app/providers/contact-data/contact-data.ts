@@ -38,7 +38,7 @@ export class ContactData {
     console.log(contacts[0].displayName);
     this.contacts = contacts.sort((n1, n2) => n1.displayName - n2.displayName);
     console.log(this.contacts[0].displayName);
-// this.contacts = contacts;
+    // this.contacts = contacts;
   }
 
   getContacts() {
@@ -92,7 +92,7 @@ export class ContactData {
     // console.log('contact bestaat nog niet');
     var contact = Contacts.create();
     contact.phoneNumbers = [];
-    // contact.organizations = [];
+    contact.organizations = [];
     contact.emails = [];
     if (user.displayName !== null) {
       contact.displayName = user.displayName;
@@ -110,9 +110,10 @@ export class ContactData {
       contact.phoneNumbers.push(new ContactField('home', user.telephoneNumber));
 
     }
-    //  if (user.department != null) { contact.organizations = user.department; }
+      if (user.department != null) { contact.organizations.push( {title: user.jobTitle, department: user.department}); }
     // contact.organizations.push(new ContactOrganization (user.department));
-
+    console.log(contact.organizations[0].name);
+    console.log(contact.organizations[0].department);
     return contact;
   }
 

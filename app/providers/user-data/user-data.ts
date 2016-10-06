@@ -62,9 +62,21 @@ export class UserData {
   }
 
   setUsers(users) {
-    this.users = users;
-    this.storage.set('users', users);
-    this.events.publish('users:change', users);
+    this.users = users.sort(function(a, b) {
+      var nameA = a.displayName.toUpperCase(); // ignore upper and lowercase
+      var nameB = b.displayName.toUpperCase(); // ignore upper and lowercase
+      if (nameA < nameB) {
+        return -1;
+      }
+      if (nameA > nameB) {
+        return 1;
+      }
+
+      // names must be equal
+      return 0;
+    });//sort((n1, n2) => n1.displayName - n2.displayName);
+    this.storage.set('users', this.users);
+    this.events.publish('users:change', this.users);
   }
 
   getUsers() {
