@@ -70,22 +70,22 @@ class MyApp {
       var t1 = 0;
       StatusBar.styleDefault();
       // try to login
-      let loading = Loading.create({
-        content: 'Logging in...'
-      });
-
-      this.nav.present(loading);
+      // let loading = Loading.create({
+      //   content: 'Logging in...'
+      // });
+      //
+      // this.nav.present(loading);
       this.userData.login(
         () => {
           console.log('login successfully ..........');
           this.enableMenu(true);
           t1 = performance.now();
           console.log('Call to log in took ' + (t1 - t0) / 1000 + ' seconds.');
-          loading.dismiss();
+          // loading.dismiss();
         },
         () => {
           console.log('login failed ..........');
-          loading.dismiss();
+          // loading.dismiss();
           this.enableMenu(false);
         }
       );

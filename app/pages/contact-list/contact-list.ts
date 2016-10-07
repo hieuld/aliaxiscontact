@@ -58,7 +58,7 @@ export class ContactListPage {
     if (val && val.trim() !== '') {
       this.contacts = this.contacts.filter((item) => {
         var name = item.name.givenName + ' ' + item.name.familyName;
-      //  console.log(name);
+        //  console.log(name);
         if (name !== null && name !== ' ') {
           return (name.toLowerCase().indexOf(val.toLowerCase()) > -1);
         }

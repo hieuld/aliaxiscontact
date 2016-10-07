@@ -2,6 +2,7 @@
 <widget id="com.ionicframework.aliaxiscontact836560" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
   <name>Aliaxis Contact</name>
   <description>A demo project to show all aliaxis contact from Azure Active Directory</description>
+  <author email="arne.herbots@devoteam.com" href="http://devoteam.be/">Devoteam</author>
   <author email="hieu.luong@devoteam.com" href="http://devoteam.be/">Devoteam</author>
   <content src="index.html"/>
   <access origin="*"/>

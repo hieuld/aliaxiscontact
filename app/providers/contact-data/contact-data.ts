@@ -17,12 +17,12 @@ export class ContactData {
     Contacts.find(['name', 'emails', 'phoneNumbers'], opt)
       .then((contacts) => {
         // console.log(contacts);
-        // for (var i = 0; i < contacts.length; i++) {
-        //   var c = contacts[i];
-        //   if (Lib.hasElementArray(c.photos)) {
-        //     console.log('photos = ' + c.photos[0].value);
-        //   }
-        // }
+        for (var i = 0; i < contacts.length; i++) {
+          var c = contacts[i];
+          if (Lib.hasElementArray(c.photos)) {
+            console.log(c.displayName, c.photos[0].type);
+          }
+        }
         this.setContacts(contacts);
         console.log('successfully loaded contacts ...........');
         completeCallBack();
@@ -110,7 +110,7 @@ export class ContactData {
       contact.phoneNumbers.push(new ContactField('home', user.telephoneNumber));
 
     }
-      if (user.department != null) { contact.organizations.push( {title: user.jobTitle, department: user.department}); }
+    if (user.department != null) { contact.organizations.push({ title: user.jobTitle, department: user.department }); }
     // contact.organizations.push(new ContactOrganization (user.department));
     console.log(contact.organizations[0].name);
     console.log(contact.organizations[0].department);

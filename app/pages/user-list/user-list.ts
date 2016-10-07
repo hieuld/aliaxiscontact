@@ -31,27 +31,29 @@ export class UserListPage {
   getUsers() {
     // this.users = this.userData.getUsers();
     // this.users = this.userData.getLocalUsers();
-    // console.log('#users', this.users.length);
     if (this.users.length <= 0) {
-      let loading = Loading.create({
-        content: 'Loading Users...'
-      });
-
-      this.nav.present(loading);
-
-      this.userData.fetchUsers(res => {
-        //  console.log('users were empty, reloading them now.');
-        this.users = res;
-        this.savedUsers = this.users;
-        console.log('res.lengt', res.length);
-        Toast.show('Users have been loaded', '5000', 'center');
-        loading.dismiss();
-      },
-        err => {
-          console.error(err);
-          loading.dismiss();
-        }
-      );
+      // let loading = Loading.create({
+      //   content: 'Loading Users...'
+      // });
+      //
+      // this.nav.present(loading);
+      this.users = this.userData.getUsers();
+      this.savedUsers = this.users;
+      /*      this.userData.fetchUsers(res => {
+              //  console.log('users were empty, reloading them now.');
+              this.setUsers(res);
+              this.savedUsers = this.users;
+              console.log('res.length', res.length);
+              console.log('this.users.length', this.users.length);
+              Toast.show('Users have been loaded', '5000', 'center');
+              loading.dismiss();
+            },
+              err => {
+                console.error(err);
+                loading.dismiss();
+              }
+            );
+      */
     }
   }
 
@@ -73,7 +75,17 @@ export class UserListPage {
   }
 
   setUsers(users) {
-    this.users = users;
+    // this.users = [];
+    // var count = 0;
+    // for (var i = 0; i < users.length; i++) {
+    //   if (users[i].displayName !== '' && users[i].mail !== '' && users[i].mobile !== ''/* ||  users[i].telephoneNumber !== '')*/) {
+    //     this.users.push(users[i]);
+    //   } else {
+    //     count++;
+    //     console.log(i, 'name', users[i].displayName, 'mail', users[i].mail, 'mobile', users[i].mobile, 'phone', users[i].telephoneNumber);
+    //   }
+    // }
+    // console.log('refused ', count, 'users');
   }
 
   searchUser(ev: any) {
@@ -81,7 +93,7 @@ export class UserListPage {
     this.users = this.savedUsers;
     // set val to the value of the searchbar
     let val = ev.target.value;
- 
+
     // if the value is an empty string don't filter the items
     if (val && val.trim() !== '') {
       this.users = this.users.filter((item) => {
@@ -96,7 +108,7 @@ export class UserListPage {
 
   doImport(user) {
     console.log('doImport');
-    Toast.show('Contact saved!', 'short', 'top').subscribe(
+    Toast.show('Contact saved!', 'medium', 'top').subscribe(
       toast => {
         //  console.log('Success', toast);
         this.contactData.importUser(user);

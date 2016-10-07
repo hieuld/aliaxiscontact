@@ -12,60 +12,60 @@ export class TutorialPage {
     constructor(private nav: NavController, private menu: MenuController, private contactData: ContactData) {}
 
     presentLoadingDefault() {
-      let loading = Loading.create({
-        content: 'Loading Contact...'
-      });
-
-      this.nav.present(loading);
-
-      this.contactData.loadContacts(
-        () => {
-          // setTimeout(() => {
-          //   loading.dismiss();
-          //   this.startApp();
-          // }, 1000);
-          console.log('miljaar de doeme');
-          loading.dismiss();
-          this.startApp();
-        },
-        err => {
-          console.error(err);
-        }
-      );
+      // let loading = Loading.create({
+      //   content: 'Loading Contact...'
+      // });
+      //
+      // this.nav.present(loading);
+      //
+      // this.contactData.loadContacts(
+      //   () => {
+      //     // setTimeout(() => {
+      //     //   loading.dismiss();
+      //     //   this.startApp();
+      //     // }, 1000);
+      //     console.log('miljaar de doeme');
+      //     loading.dismiss();
+      //     this.startApp();
+      //   },
+      //   err => {
+      //     console.error(err);
+      //   }
+      // );
     }
 
     presentLoadingCustom() {
-      let loading = Loading.create({
-        spinner: 'hide',
-        content: `
-          <div class="custom-spinner-container">
-          <div class="custom-spinner-box"></div>
-          </div>`,
-        duration: 5000
-      });
-
-      loading.onDismiss(() => {
-        console.log('Dismissed loading');
-      });
-
-      this.nav.present(loading);
+      // let loading = Loading.create({
+      //   spinner: 'hide',
+      //   content: `
+      //     <div class="custom-spinner-container">
+      //     <div class="custom-spinner-box"></div>
+      //     </div>`,
+      //   duration: 5000
+      // });
+      //
+      // loading.onDismiss(() => {
+      //   console.log('Dismissed loading');
+      // });
+      //
+      // this.nav.present(loading);
     }
 
     presentLoadingText() {
-      let loading = Loading.create({
-        spinner: 'hide',
-        content: 'Loading Please Wait...'
-      });
-
-      this.nav.present(loading);
-
-      setTimeout(() => {
-
-      }, 1000);
-
-      setTimeout(() => {
-        loading.dismiss();
-      }, 5000);
+      // let loading = Loading.create({
+      //   spinner: 'hide',
+      //   content: 'Loading Please Wait...'
+      // });
+      //
+      // this.nav.present(loading);
+      //
+      // setTimeout(() => {
+      //
+      // }, 1000);
+      //
+      // setTimeout(() => {
+      //   loading.dismiss();
+  // }, 5000);
     }
 
 

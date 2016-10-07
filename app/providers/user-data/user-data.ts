@@ -36,13 +36,7 @@ export class UserData {
         var username = auth.userInfo.displayableId;
         this.setUsername(username);
         this.events.publish('user:login');
-        this.fetchUsersWithAuth(
-          auth,
-          users => {
-            this.setUsers(users);
-            completeCallBack();
-          },
-          failCallBack);
+        // this.fetchUsersWithAuth(auth, users => { this.setUsers(users);completeCallBack();},failCallBack);
       },
       failCallBack
     );
@@ -62,7 +56,19 @@ export class UserData {
   }
 
   setUsers(users) {
-    this.users = users.sort(function(a, b) {
+    // var count = 0;
+    for (var i = 0; i < users.length; i++) {
+      if (users[i].mail !== null && (users[i].mobile !== null || users[i].telephoneNumber !== null)) {
+        this.users.push(users[i]);
+      }
+      // else {
+      // count++;
+      // console.log(i, 'name', users[i].displayName, 'mail', users[i].mail, 'mobile', users[i].mobile, 'phone', users[i].telephoneNumber);
+      // }
+    }
+    // console.log('refused ' + count + ' users');
+
+    this.users.sort(function(a, b) {
       var nameA = a.displayName.toUpperCase(); // ignore upper and lowercase
       var nameB = b.displayName.toUpperCase(); // ignore upper and lowercase
       if (nameA < nameB) {
@@ -74,7 +80,7 @@ export class UserData {
 
       // names must be equal
       return 0;
-    });//sort((n1, n2) => n1.displayName - n2.displayName);
+    }); // sort((n1, n2) => n1.displayName - n2.displayName);
     this.storage.set('users', this.users);
     this.events.publish('users:change', this.users);
   }
@@ -104,6 +110,7 @@ export class UserData {
 
     return localUsers;
   }
+
   fetchUsersWithAuth(auth, completeCallBack, failCallBack) {
 
     // success then load
