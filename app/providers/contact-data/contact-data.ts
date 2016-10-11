@@ -13,10 +13,7 @@ export class ContactData {
   constructor(private http: Http, private sanitizer: DomSanitizationService) { }
 
   loadContacts(completeCallBack, failComeBack) {
-
     // display the address information for all contacts
-
-
 
     // find all contacts
     var opt = new ContactFindOptions();
@@ -27,29 +24,6 @@ export class ContactData {
 
     Contacts.find(['name', 'emails', 'phoneNumbers'], opt)
       .then((contacts) => {
-        for (var i = 0; i < contacts.length; i++) {
-          var c = contacts[i];
-          if (Lib.hasElementArray(c.photos)) {
-            var url = c.photos[0].value;
-            console.log(c.displayName, c.photos[0].type, url);
-            // this.sanitizer.bypassSecurityTrustUrl.
-            console.log('orig', c.photos[0].value);
-            // c.photos[0].value = this.sanitizer.bypassSecurityTrustUrl(url);
-            // console.log('new', c.photos[0].value);
-            // FilePath.resolveNativePath(url, console.log, console.error);
-          }
-          //     this.returnValidPhoto(url, (answer)=> {
-          //       console.log(answer);
-          //       if (c.photos[0] != null)
-          //       c.photos[0].value = answer;
-          //     });
-          //
-          //
-          //     // this.fetchPictures(c.photos[0].value, console.log, console.error);
-          //     // File.readAsText(c.photos[0].value, '').then(console.log, console.error);
-          //     // File.readAsText(c.photos[0].value.substring(0,c.photos[0].value.length-5), 'photo').then(console.log, console.error);
-          //   }
-        }
         this.setContacts(contacts);
         console.log('successfully loaded contacts ...........');
         completeCallBack();
@@ -100,10 +74,22 @@ export class ContactData {
   }
 
   setContacts(contacts) {
-    console.log(contacts[0].displayName);
-    this.contacts = contacts.sort((n1, n2) => n1.displayName - n2.displayName);
-    console.log(this.contacts[0].displayName);
-    // this.contacts = contacts;
+  this.contacts = contacts;
+    // console.log('refused ' + (contacts.length - this.contacts.length) + ' users');
+    this.contacts.sort(function(a, b) {
+      var nameA = a.displayName; // ignore upper and lowercase
+      var nameB = b.displayName; // ignore upper and lowercase
+      if (nameA < nameB) {
+        return -1;
+      }
+      if (nameA > nameB) {
+        return 1;
+      }
+
+      // names must be equal
+      return 0;
+    });
+    // this.contacts = contacts.sort((n1, n2) => n1.displayName - n2.displayName);
   }
 
   getContacts() {

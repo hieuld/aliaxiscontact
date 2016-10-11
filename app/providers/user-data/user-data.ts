@@ -61,12 +61,6 @@ export class UserData {
       if (users[i].mail !== null && (users[i].mobile !== null || users[i].telephoneNumber !== null)) {
         this.users.push(users[i]);
       }
-      /*
-       else {
-       count++;
-       console.log(i, 'name', users[i].displayName, 'mail', users[i].mail, 'mobile', users[i].mobile, 'phone', users[i].telephoneNumber);
-        }
-     */
     }
     console.log('refused ' + (users.length - this.users.length) + ' users');
     /*

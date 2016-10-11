@@ -5,11 +5,12 @@
     </button>
     <ion-title>Contact</ion-title>
   </ion-navbar>
+  <ion-searchbar (ionInput)="searchContact($event)"></ion-searchbar>
+
 </ion-header>
 
 <ion-content class="outer-content">
   <!-- <ion-card *ngFor="let contact of contacts" class="contact"> -->
-  <ion-searchbar (ionInput)="searchContact($event)"></ion-searchbar>
 
   <ion-list [virtualScroll]="contacts" class="contact-list">
     <ion-card *virtualItem="let contact" class="contact">
