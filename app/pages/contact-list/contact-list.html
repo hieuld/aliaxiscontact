@@ -17,8 +17,10 @@
         <ion-item class="item-borderless">
           <ion-avatar item-left>
             <img src="img/user.svg" *ngIf="!contact.photos">
-            <img src="{{contact.photos[0]?.value}}" *ngIf="contact.photos">
-            <!-- <img src={{contact.photos[0]?.value}} *ngIf="contact.photos && contact.photos.length > 0"> -->
+            <!-- <img src="unsafe:{{contact.photos[0].value}}" *ngIf="contact.photos"> -->
+            <img [src]="sanitize(contact.photos[0].value)" *ngIf="contact.photos" />
+
+            <!-- <img src={{contact.photos[0].value}} *ngIf="contact.photos && contact.photos.length > 0"> -->
             <!-- <img src="img/user.svg"> -->
           </ion-avatar>
           {{contact?.displayName}}

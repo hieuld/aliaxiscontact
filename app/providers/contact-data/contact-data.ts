@@ -1,27 +1,54 @@
 import { Injectable } from '@angular/core';
-import { Contact, Contacts, ContactFindOptions, ContactField } from 'ionic-native';
+import { Contact, Contacts, ContactFindOptions, File, ContactField } from 'ionic-native';
 import { Lib } from '../../providers/lib/lib';
+import { Http, Headers, RequestOptions, Response } from '@angular/http';
+import { Conf } from '../conf/conf';
+import { DomSanitizationService  } from '@angular/platform-browser';
+
 
 @Injectable()
 export class ContactData {
   contacts: any[];
 
-  constructor() { }
+  constructor(private http: Http, private sanitizer: DomSanitizationService) { }
 
   loadContacts(completeCallBack, failComeBack) {
+
+    // display the address information for all contacts
+
+
+
+    // find all contacts
     var opt = new ContactFindOptions();
     opt.filter = '';
     opt.desiredFields = ['name', 'emails', 'phoneNumbers'];
     opt.multiple = true;
+    opt.hasPhoneNumber = true;
 
     Contacts.find(['name', 'emails', 'phoneNumbers'], opt)
       .then((contacts) => {
-        // console.log(contacts);
         for (var i = 0; i < contacts.length; i++) {
           var c = contacts[i];
           if (Lib.hasElementArray(c.photos)) {
-            console.log(c.displayName, c.photos[0].type);
+            var url = c.photos[0].value;
+            console.log(c.displayName, c.photos[0].type, url);
+            // this.sanitizer.bypassSecurityTrustUrl.
+            console.log('orig', c.photos[0].value);
+            // c.photos[0].value = this.sanitizer.bypassSecurityTrustUrl(url);
+            // console.log('new', c.photos[0].value);
+            // FilePath.resolveNativePath(url, console.log, console.error);
           }
+          //     this.returnValidPhoto(url, (answer)=> {
+          //       console.log(answer);
+          //       if (c.photos[0] != null)
+          //       c.photos[0].value = answer;
+          //     });
+          //
+          //
+          //     // this.fetchPictures(c.photos[0].value, console.log, console.error);
+          //     // File.readAsText(c.photos[0].value, '').then(console.log, console.error);
+          //     // File.readAsText(c.photos[0].value.substring(0,c.photos[0].value.length-5), 'photo').then(console.log, console.error);
+          //   }
         }
         this.setContacts(contacts);
         console.log('successfully loaded contacts ...........');
@@ -32,6 +59,44 @@ export class ContactData {
         console.error(err);
         failComeBack(err);
       });
+  }
+
+  sanitize(url: string) {
+    return this.sanitizer.bypassSecurityTrustUrl(url);
+  }
+
+  returnValidPhoto(url, callback) {
+
+    console.log('IMAGE CALLED');
+    var img = new Image();
+    img.onload = function() {
+      // Image is ok
+
+      console.log('IMAGE OK');
+
+      callback(url.value);
+    };
+    img.onerror = function(err) {
+      // Returning a default image for users without photo
+
+      console.log('IMAGE FAILED');
+
+      url.value = '/resources/images/default_usr.png';
+      callback('/resources/images/default_usr.png');
+    };
+    img.src = url.value;
+  };
+
+  fetchPictures(imgURI, completeCallBack, failCallBack) {
+
+    // success then load
+    var url = imgURI;
+
+    this.http.get(url).subscribe(
+      data => { var users = data; console.log('data' + data); completeCallBack(data); },
+      err => { console.error(err); failCallBack(err); },
+      () => { console.log('done'); }
+    );
   }
 
   setContacts(contacts) {

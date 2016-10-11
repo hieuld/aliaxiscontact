@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { Events, Loading, ActionSheet, NavController, Alert } from 'ionic-angular';
-import { Toast } from 'ionic-native';
+import { Toast, SocialSharing } from 'ionic-native';
 import { UserData } from '../../providers/user-data/user-data';
 import { ContactData } from '../../providers/contact-data/contact-data';
 import { Lib } from '../../providers/lib/lib';
+// import { vcardsjs } from '../vcards-js';
 
 @Component({
   templateUrl: 'build/pages/user-list/user-list.html'
@@ -24,36 +25,17 @@ export class UserListPage {
 
   ionViewWillEnter() {
     console.log('user-list ionviewWillEnter');
+
+
     if (this.users.length === 0) { this.getUsers(); }
     this.doSubscribe();
   }
 
   getUsers() {
-    // this.users = this.userData.getUsers();
-    // this.users = this.userData.getLocalUsers();
     if (this.users.length <= 0) {
-      // let loading = Loading.create({
-      //   content: 'Loading Users...'
-      // });
-      //
-      // this.nav.present(loading);
-      this.users = this.userData.getUsers();
+      // this.users = this.userData.getLocalUsers();
+      this.users = this.userData.getUsers(this.nav);
       this.savedUsers = this.users;
-      /*      this.userData.fetchUsers(res => {
-              //  console.log('users were empty, reloading them now.');
-              this.setUsers(res);
-              this.savedUsers = this.users;
-              console.log('res.length', res.length);
-              console.log('this.users.length', this.users.length);
-              Toast.show('Users have been loaded', '5000', 'center');
-              loading.dismiss();
-            },
-              err => {
-                console.error(err);
-                loading.dismiss();
-              }
-            );
-      */
     }
   }
 
@@ -90,6 +72,9 @@ export class UserListPage {
 
   searchUser(ev: any) {
     // Reset items back to all of the items
+    if (!this.savedUsers) {
+      this.savedUsers = this.users;
+    }
     this.users = this.savedUsers;
     // set val to the value of the searchbar
     let val = ev.target.value;
@@ -110,7 +95,6 @@ export class UserListPage {
     console.log('doImport');
     Toast.show('Contact saved!', 'medium', 'top').subscribe(
       toast => {
-        //  console.log('Success', toast);
         this.contactData.importUser(user);
       },
       error => {
@@ -140,7 +124,29 @@ export class UserListPage {
     Lib.text(user.mobile);
   }
 
+  buildVCard(contact) {
+    console.log('Contact', contact);
+    var str = contact.displayName + '\n';
+    (contact.mobile) ? (str += 'Mobile: ' + contact.mobile + '\n') : ('');
+    (contact.telephoneNumber) ? (str += 'Phone (fix): ' + contact.telephoneNumber + '\n') : ('');
+    (contact.department) ? (str += 'Department: ' + contact.department + '\n') : ('');
+    (contact.jobTitle) ? (str += 'Job Title: ' + contact.jobTitle + '\n') : ('');
+    (contact.mail) ? (str += 'Email: ' + contact.mail + '\n') : ('');
+
+
+    var vcard = str;
+    // 'FN:' + contact.name.formatted + '\n' +
+
+    console.log(vcard);
+    // var file = new Blob([vcard], {type: 'vsf'});
+
+    return vcard;
+  }
+
   openUserShare(user) {
+    var vcard = this.buildVCard(user);
+    SocialSharing.share(vcard, 'test', '', '');
+    /*
     let actionSheet = ActionSheet.create({
       title: 'Share ' + user.displayName,
       buttons: [
@@ -151,6 +157,11 @@ export class UserListPage {
             if (window['cordova'] && window['cordova'].plugins.clipboard) {
               window['cordova'].plugins.clipboard.copy('https://twitter.com/' + user.twitter);
             }
+          }
+        }, {
+          text: 'Share ContactCard',
+          handler: () => {
+            console.log('Share via clicked');
           }
         },
         {
@@ -169,7 +180,7 @@ export class UserListPage {
       ]
     });
 
-    this.nav.present(actionSheet);
+    this.nav.present(actionSheet);*/
   }
 
   doAlert(message: string) {

@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ActionSheet, Loading, NavController } from 'ionic-angular';
 import { ContactData } from '../../providers/contact-data/contact-data';
 import { Lib } from '../../providers/lib/lib';
+import { DomSanitizationService  } from '@angular/platform-browser';
 
 @Component({
   templateUrl: 'build/pages/contact-list/contact-list.html'
@@ -12,7 +13,13 @@ export class ContactListPage {
   prevValue = '';
   savedContacts = [];
 
-  constructor(private nav: NavController, private contactData: ContactData) { }
+  constructor(private nav: NavController, private contactData: ContactData,  private sanitizer: DomSanitizationService ) { }
+
+
+  sanitize(url: string) {
+      return this.sanitizer.bypassSecurityTrustUrl(url);
+  }
+
 
   ionViewWillEnter() {
     console.log('Contact-list ionViewWillEnter');
