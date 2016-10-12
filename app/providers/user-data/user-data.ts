@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Events, LocalStorage, Storage, Loading } from 'ionic-angular';
+import { NativeStorage } from 'ionic-native';
 import { Http, Headers, RequestOptions, Response } from '@angular/http';
 import { Conf } from '../conf/conf';
 import 'rxjs/add/operator/map';
 
 declare var Microsoft: any;
+declare var navigator: any;
 
 @Injectable()
 export class UserData {
@@ -47,6 +49,7 @@ export class UserData {
     this.clearCache(
       () => {
         this.storage.remove('username');
+        NativeStorage.clear();
         this.events.publish('user:logout');
         this.setUsers([]);
         completeCallBack();
@@ -57,62 +60,56 @@ export class UserData {
 
   setUsers(users) {
     // var count = 0;
+    this.users = [];
     for (var i = 0; i < users.length; i++) {
       if (users[i].mail !== null && (users[i].mobile !== null || users[i].telephoneNumber !== null)) {
         this.users.push(users[i]);
       }
     }
     console.log('refused ' + (users.length - this.users.length) + ' users');
-    /*
-        this.users.sort(function(a, b) {
-          var nameA = a.displayName.toUpperCase(); // ignore upper and lowercase
-          var nameB = b.displayName.toUpperCase(); // ignore upper and lowercase
-          if (nameA < nameB) {
-            return -1;
-          }
-          if (nameA > nameB) {
-            return 1;
-          }
 
-          // names must be equal
-          return 0;
-        });
-    */
-    this.storage.set('users', this.users);
     this.events.publish('users:change', this.users);
   }
 
   getUsers(nav) {
-    if (this.users.length === 0) {
+    if (this.users.length !== 0) {
+      return this.users;
+    } else {
       let loading = Loading.create({
         content: 'Loading Users...'
       });
       nav.present(loading);
-      console.log('users were empty, reloading them now.');
-      this.fetchUsers(() => {
-        console.log('Successfully loaded contacts.');
-        loading.dismiss();
-      },
-        err => {
-          console.error(err);
+      NativeStorage.getItem('users')
+        .then(
+        (data) => {
+          this.setUsers(data);
           loading.dismiss();
-        });
-    } else {
-      return this.users;
+          console.log('local loaded');
+        },
+        (error) => {
+          console.error(error);
+          return Promise.resolve();
+        }
+        ).then(() => this.getOnlineUsers())
+        .then(() => loading.dismiss());
     }
   }
 
-  getLocalUsers() {
-    var localUsers = [];
-    var str = '';
-    this.storage.get('users').then(value => {
-      localUsers = value; console.log('#value', value.length); for (var property in value) {
-        str += property + ': ' + value[str] + '; ';
-      }; console.log(str);
+  getOnlineUsers() {
+    return new Promise(resolve => {
+      if (navigator.connection.type !== 'none') {
+        console.log('users were empty, reloading them now.');
+        this.fetchUsers(() => {
+          console.log('Successfully loaded online contacts.');
+          NativeStorage.setItem('users', this.users);
+          resolve();
+        },
+          err => {
+            console.error(err);
+            resolve();
+          });
+      }
     });
-    console.log('get', this.storage.get('users'));
-
-    return localUsers;
   }
 
   fetchUsersWithAuth(auth, completeCallBack, failCallBack) {

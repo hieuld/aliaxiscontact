@@ -34,7 +34,8 @@ export class UserListPage {
   getUsers() {
     if (this.users.length <= 0) {
       // this.users = this.userData.getLocalUsers();
-      this.users = this.userData.getUsers(this.nav);
+      // this.users =
+      this.userData.getUsers(this.nav);
       this.savedUsers = this.users;
     }
   }

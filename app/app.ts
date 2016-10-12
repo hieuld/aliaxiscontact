@@ -1,7 +1,9 @@
-import { Component,
+import {
+  Component,
   ViewChild }    from '@angular/core';
 
-import { ionicBootstrap,
+import {
+  ionicBootstrap,
   Events,
   MenuController,
   Nav,
@@ -28,7 +30,7 @@ interface PageObj {
 }
 
 declare var navigator: any;
-declare var Connection: any;
+// declare var Connection: any;
 
 @Component({
   templateUrl: 'build/app.html',
@@ -66,29 +68,34 @@ class MyApp {
 
     // Call any initial plugins when ready
     platform.ready().then(() => {
-      var t0 = performance.now();
-      var t1 = 0;
-      StatusBar.styleDefault();
-      // try to login
-      // let loading = Loading.create({
-      //   content: 'Logging in...'
-      // });
-      //
-      // this.nav.present(loading);
-      this.userData.login(
-        () => {
-          console.log('login successfully ..........');
-          this.enableMenu(true);
-          t1 = performance.now();
-          console.log('Call to log in took ' + (t1 - t0) / 1000 + ' seconds.');
-          // loading.dismiss();
-        },
-        () => {
-          console.log('login failed ..........');
-          // loading.dismiss();
-          this.enableMenu(false);
-        }
-      );
+      console.log(navigator.connection.type);
+      if (navigator.connection.type !== 'none') {
+        var t0 = performance.now();
+        var t1 = 0;
+        StatusBar.styleDefault();
+        // try to login
+        // let loading = Loading.create({
+        //   content: 'Logging in...'
+        // });
+        //
+        // this.nav.present(loading);
+        this.userData.login(
+          () => {
+            console.log('login successfully ..........');
+            this.enableMenu(true);
+            t1 = performance.now();
+            console.log('Call to log in took ' + (t1 - t0) / 1000 + ' seconds.');
+            // loading.dismiss();
+          },
+          () => {
+            console.log('login failed ..........');
+            // loading.dismiss();
+            this.enableMenu(false);
+          }
+        );
+      } else {
+        alert('You are not connected to the internet, we try to use the data we stored last time you used the app. \nPlease note the this data might be outdated.');
+      }
     });
 
     this.listenToLoginEvents();
@@ -123,12 +130,12 @@ class MyApp {
 
   listenToLoginEvents() {
     this.events.subscribe('user:login', () => {
-      console.log('already login');
+      console.log('already loged-in');
       this.enableMenu(true);
     });
 
     this.events.subscribe('user:logout', () => {
-      console.log('already logout');
+      console.log('already loged-out');
       this.enableMenu(false);
     });
   }
