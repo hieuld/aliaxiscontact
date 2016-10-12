@@ -7,12 +7,14 @@ import 'rxjs/add/operator/map';
 
 declare var Microsoft: any;
 declare var navigator: any;
+declare function escape(s: string): string;
+
 
 @Injectable()
 export class UserData {
   storage = new Storage(LocalStorage);
   users = [];
-
+  profilepic = {};
   constructor(private events: Events, private http: Http) { }
 
   getAuth(completeCallBack, failCallBack) {
@@ -38,7 +40,7 @@ export class UserData {
         var username = auth.userInfo.displayableId;
         this.setUsername(username);
         this.events.publish('user:login');
-        // this.fetchUsersWithAuth(auth, users => { this.setUsers(users);completeCallBack();},failCallBack);
+        this.fetchProfilePicture(auth);
       },
       failCallBack
     );
@@ -66,6 +68,7 @@ export class UserData {
         this.users.push(users[i]);
       }
     }
+    console.log(users[0].thumbnailPhoto);
     console.log('refused ' + (users.length - this.users.length) + ' users');
 
     this.events.publish('users:change', this.users);
@@ -93,12 +96,12 @@ export class UserData {
         ).then(() => this.getOnlineUsers())
         .then(() => loading.dismiss());
     }
-  }
+  } 
 
   getOnlineUsers() {
     return new Promise(resolve => {
       if (navigator.connection.type !== 'none') {
-        console.log('users were empty, reloading them now.');
+        console.log('getting online contacts.');
         this.fetchUsers(() => {
           console.log('Successfully loaded online contacts.');
           NativeStorage.setItem('users', this.users);
@@ -113,8 +116,6 @@ export class UserData {
   }
 
   fetchUsersWithAuth(auth, completeCallBack, failCallBack) {
-
-    // success then load
     var url = Conf.resourceUri + '/' + auth.tenantId + '/users?$top=999&api-version=' + Conf.graphApiVersion;
     var hed: Headers = new Headers();
     hed.set('Content-type', 'application/json');
@@ -126,15 +127,53 @@ export class UserData {
       data => {
         // var users = data.value;
         // completeCallBack(users);
-        console.log(data.value[0]);
         completeCallBack(data.value);
       },
       err => {
         console.error(err);
         failCallBack(err);
       },
-      () => { console.log('done'); }
+      () => { }
       );
+  }
+
+  fetchProfilePicture(auth) {
+    var url = Conf.resourceUri + '/' + auth.tenantId + '/users/' + auth.userInfo.uniqueId + '/thumbnailPhoto?api-version=' + Conf.graphApiVersion;
+    var oReq = new XMLHttpRequest();
+    oReq.open('GET', url, true);
+    oReq.setRequestHeader('Content-type', 'image/jpeg');
+    oReq.setRequestHeader('Authorization', 'Bearer ' + auth.accessToken);
+    oReq.responseType = 'arraybuffer';
+
+    oReq.onload = (oEvent) => {
+      var blob = new Blob([oReq.response], { type: 'image/jpg' });
+      var reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = () => {
+        this.profilepic = reader.result;
+      };
+    };
+
+    oReq.send();
+
+    /*var url = Conf.resourceUri + '/' + auth.tenantId + '/users/' + auth.userInfo.uniqueId + '/thumbnailPhoto?api-version=' + Conf.graphApiVersion;
+    var hed: Headers = new Headers();
+    console.log(url);
+    // hed.set('Content-type', 'image/jpeg');
+    hed.append('Authorization', 'Bearer ' + auth.accessToken);
+    var opt: RequestOptions = new RequestOptions({ headers: hed });
+    console.log(this.http.get(url, opt));
+    this.http.request(url, opt).subscribe(
+      (resp) => {
+        console.log(resp);
+
+        this.profilepic = resp.text();
+      },
+      err => {
+        console.error(err);
+      },
+      () => { console.log('done'); }
+    );*/
   }
 
   fetchUsers(completeCallBack, failCallBack) {
@@ -190,5 +229,4 @@ export class UserData {
       }
     );
   }
-
 }
