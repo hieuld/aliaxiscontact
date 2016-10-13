@@ -68,9 +68,7 @@ export class UserData {
         this.users.push(users[i]);
       }
     }
-    console.log(users[0].thumbnailPhoto);
     console.log('refused ' + (users.length - this.users.length) + ' users');
-
     this.events.publish('users:change', this.users);
   }
 

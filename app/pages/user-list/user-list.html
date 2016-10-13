@@ -11,7 +11,17 @@
     </button>
     <ion-title>People</ion-title>
   </ion-navbar>
-  <ion-searchbar  (ionInput)="searchUser($event)"></ion-searchbar>
+  <ion-item>
+    <ion-label>Search by:
+    </ion-label>
+    <ion-select [(ngModel)]="search">
+      <ion-option value="Name" selected="true" >Name</ion-option>
+      <ion-option value="Job">Job</ion-option>
+      <ion-option value="Department">Department</ion-option>
+    </ion-select>
+  </ion-item>
+  <ion-searchbar (ionInput)="searchUser($event)"></ion-searchbar>
+
 </ion-header>
 
 <ion-content class="outer-content">
@@ -19,7 +29,6 @@
   <!-- <ion-refresher on-refresh="getUsers($refresher)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher> -->
-
 
   <!-- <ion-card *ngFor="let user of users" class="user"> -->
   <ion-list [virtualScroll]="users" class="user-list">

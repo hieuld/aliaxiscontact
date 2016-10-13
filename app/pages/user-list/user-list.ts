@@ -15,6 +15,7 @@ export class UserListPage {
   users = [];
   savedUsers = [];
   prevValue = '';
+  search = 'Name';
 
   constructor(
     private nav: NavController,
@@ -25,9 +26,7 @@ export class UserListPage {
 
   ionViewWillEnter() {
     console.log('user-list ionviewWillEnter');
-
-
-    if (this.users.length === 0) { this.getUsers(); }
+    this.getUsers();
     this.doSubscribe();
   }
 
@@ -37,7 +36,7 @@ export class UserListPage {
       // this.users =
       this.userData.getUsers(this.nav);
       this.savedUsers = this.users;
-    }
+    } 
   }
 
   ionViewDidLeave() {
@@ -77,17 +76,35 @@ export class UserListPage {
       this.savedUsers = this.users;
     }
     this.users = this.savedUsers;
-    // set val to the value of the searchbar
+    // set val to the value of the rchbar
     let val = ev.target.value;
 
     // if the value is an empty string don't filter the items
     if (val && val.trim() !== '') {
-      this.users = this.users.filter((item) => {
-        //  console.log(item.displayName);
-        if (item.displayName !== null) {
-          return (item.displayName.toLowerCase().indexOf(val.toLowerCase()) > -1);
-        }
-      });
+      switch (this.search) {
+        case 'Job':
+          this.users = this.users.filter((item) => {
+            if (item.jobTitle !== null) {
+              return (item.jobTitle.toLowerCase().indexOf(val.toLowerCase()) > -1);
+            }
+          });
+          break;
+        case 'Department':
+          this.users = this.users.filter((item) => {
+            if (item.department !== null) {
+              return (item.department.toLowerCase().indexOf(val.toLowerCase()) > -1);
+            }
+          });
+          break;
+        default:
+          this.users = this.users.filter((item) => {
+            //  console.log(item.displayName);
+            if (item.displayName !== null) {
+              return (item.displayName.toLowerCase().indexOf(val.toLowerCase()) > -1);
+            }
+          });
+      }
+
     }
     this.prevValue = val;
   }

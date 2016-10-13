@@ -68,7 +68,6 @@ class MyApp {
 
     // Call any initial plugins when ready
     platform.ready().then(() => {
-      console.log(navigator.connection.type);
       if (navigator.connection.type !== 'none') {
         var t0 = performance.now();
         var t1 = 0;
