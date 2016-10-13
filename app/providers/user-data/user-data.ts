@@ -96,7 +96,7 @@ export class UserData {
         ).then(() => this.getOnlineUsers())
         .then(() => loading.dismiss());
     }
-  } 
+  }
 
   getOnlineUsers() {
     return new Promise(resolve => {
@@ -116,7 +116,8 @@ export class UserData {
   }
 
   fetchUsersWithAuth(auth, completeCallBack, failCallBack) {
-    var url = Conf.resourceUri + '/' + auth.tenantId + '/users?$top=999&api-version=' + Conf.graphApiVersion;
+    var url = Conf.resourceUri + '/' + auth.tenantId + '/users?$top=100&api-version=' + Conf.graphApiVersion;
+    var values = [];
     var hed: Headers = new Headers();
     hed.set('Content-type', 'application/json');
     hed.append('Authorization', 'Bearer ' + auth.accessToken);
@@ -125,13 +126,54 @@ export class UserData {
       return res.json();
     }).subscribe(
       data => {
+        var hasNext = false;
         // var users = data.value;
         // completeCallBack(users);
-        completeCallBack(data.value);
+        // console.log('data', data);
+        values = values.concat(data.value);
+        if (data['odata.nextLink']) {
+          this.getNextPage(url, data['odata.nextLink'], auth, values, completeCallBack);
+        } else {
+          completeCallBack(values);
+        }
+        // console.log(values.length);
       },
       err => {
         console.error(err);
         failCallBack(err);
+      },
+      () => { }
+      );
+  }
+
+  getNextPage(url, nextLink, auth, values, completeCallBack) {
+    var skiptoken = nextLink.substring(nextLink.search('skiptoken') + 12, nextLink.length - 1);
+    skiptoken = '\'' + skiptoken + '\'';
+    // skiptoken = escape(skiptoken);
+    var newUrl = url + '&$skiptoken=X' + skiptoken;
+
+    // console.log('url', newUrl);
+    var hed: Headers = new Headers();
+    hed.set('Content-type', 'application/json');
+    hed.append('Authorization', 'Bearer ' + auth.accessToken);
+    var opt: RequestOptions = new RequestOptions({ headers: hed });
+    this.http.get(newUrl, opt).map((res: Response) => {
+      return res.json();
+    })
+      .subscribe(data => {
+        values = values.concat(data.value);
+        console.log(values.length);
+        if (data['odata.nextLink']) {
+          this.getNextPage(url, data['odata.nextLink'], auth, values, completeCallBack);
+        } else {
+          completeCallBack(values);
+        }
+        return data;
+      }
+      ,
+      err => {
+        console.error(err);
+        completeCallBack(values);
       },
       () => { }
       );

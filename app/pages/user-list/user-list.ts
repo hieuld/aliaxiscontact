@@ -73,7 +73,7 @@ export class UserListPage {
 
   searchUser(ev: any) {
     // Reset items back to all of the items
-    if (!this.savedUsers) {
+    if (this.savedUsers.length === 0) {
       this.savedUsers = this.users;
     }
     this.users = this.savedUsers;
