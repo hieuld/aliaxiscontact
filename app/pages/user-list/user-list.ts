@@ -4,7 +4,7 @@ import { Toast, SocialSharing } from 'ionic-native';
 import { UserData } from '../../providers/user-data/user-data';
 import { ContactData } from '../../providers/contact-data/contact-data';
 import { Lib } from '../../providers/lib/lib';
-// import { vcardsjs } from '../vcards-js';
+import { DomSanitizationService  } from '@angular/platform-browser';
 
 @Component({
   templateUrl: 'build/pages/user-list/user-list.html'
@@ -21,8 +21,15 @@ export class UserListPage {
     private nav: NavController,
     private userData: UserData,
     private contactData: ContactData,
-    private events: Events
-  ) { }
+    private events: Events,
+    private sanitizer: DomSanitizationService) { }
+
+
+  sanitize(url: string) {
+    // console.log(url);
+    this.userData.fetchProfilePictureById(url, true);
+    return this.sanitizer.bypassSecurityTrustUrl(url);
+  }
 
   ionViewWillEnter() {
     console.log('user-list ionviewWillEnter');
@@ -32,11 +39,13 @@ export class UserListPage {
 
   getUsers() {
     if (this.users.length <= 0) {
-      // this.users = this.userData.getLocalUsers();
-      // this.users =
-      this.userData.getUsers(this.nav);
+      this.setUsers(this.userData.getUsers(this.nav));
       this.savedUsers = this.users;
     }
+  }
+
+  updateUserThumbs() {
+    this.userData.updateUserThumbs();
   }
 
   ionViewDidLeave() {
@@ -52,27 +61,17 @@ export class UserListPage {
       var newUsers = userEventData[0];
       var len = newUsers.length;
 
-      (len === 0) ? (this.users.length = 0) : (this.users = newUsers);
+      (len === 0) ? (this.users.length = 0) : (this.setUsers(newUsers));
     });
   }
 
   setUsers(users) {
-    // this.users = [];
-    // var count = 0;
-    // for (var i = 0; i < users.length; i++) {
-    //   if (users[i].displayName !== '' && users[i].mail !== '' && users[i].mobile !== ''/* ||  users[i].telephoneNumber !== '')*/) {
-    //     this.users.push(users[i]);
-    //   } else {
-    //     count++;
-    //     console.log(i, 'name', users[i].displayName, 'mail', users[i].mail, 'mobile', users[i].mobile, 'phone', users[i].telephoneNumber);
-    //   }
-    // }
-    // console.log('refused ', count, 'users');
+  this.users = users;
   }
 
   searchUser(ev: any) {
     // Reset items back to all of the items
-    if (this.savedUsers.length === 0) {
+    if (this.savedUsers || this.savedUsers.length === 0) {
       this.savedUsers = this.users;
     }
     this.users = this.savedUsers;

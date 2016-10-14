@@ -16,14 +16,14 @@ export class ContactData {
     // display the address information for all contacts
 
     // find all contacts
-    var opt = new ContactFindOptions();
-    opt.filter = '';
-    opt.desiredFields = ['name', 'emails', 'phoneNumbers'];
-    opt.hasPhoneNumber = true;
+    // var opt = new ContactFindOptions();
+    // opt.multiple = true;
+    // opt.filter = '';
+    // opt.desiredFields = ['name', 'emails', 'phoneNumbers'];
+    // opt.hasPhoneNumber = true;
     var t = { 'filter': '', 'multiple': true, 'desiredFields': ['name', 'emails', 'phoneNumbers'] };
     Contacts.find(['*'], t)
       .then((contacts) => {
-        console.log(contacts);
         this.setContacts(contacts);
         console.log('successfully loaded contacts ...........');
         completeCallBack();

@@ -10,6 +10,9 @@
       <ion-icon name="menu"></ion-icon>
     </button>
     <ion-title>People</ion-title>
+    <button (click)="updateUserThumbs()" round secondary icon-only>
+  <ion-icon name="refresh"></ion-icon>
+</button>
   </ion-navbar>
   <ion-item>
     <ion-label>Search by:
@@ -25,20 +28,13 @@
 </ion-header>
 
 <ion-content class="outer-content">
-
-  <!-- <ion-refresher on-refresh="getUsers($refresher)">
-    <ion-refresher-content></ion-refresher-content>
-  </ion-refresher> -->
-
-  <!-- <ion-card *ngFor="let user of users" class="user"> -->
   <ion-list [virtualScroll]="users" class="user-list">
     <ion-card *virtualItem="let user" class="user">
-
       <ion-card-header>
         <ion-item>
           <ion-avatar item-left>
-            <img src="img/user.svg">
-            <!-- <img [src]="sanitize(user.photos[0].value)" *ngIf="contact.photos" /> -->
+            <!-- <ion-img src="img/user.svg" ></ion-img> -->
+            <ion-img [src]="sanitize(user.userPrincipalName)" ></ion-img>
           </ion-avatar>
           {{user.displayName}}
         </ion-item>
@@ -70,11 +66,11 @@
       </ion-card-content>
 
       <ion-item>
-        <button (click)="doCall(user)" outline secondary text-center item-left>
+        <button (click)="doCall(user)" round secondary text-center>
           <ion-icon name="call-outline"></ion-icon>
           Call
         </button>
-        <button (click)="doText(user)" secondary text-center item-left>
+        <button (click)="doText(user)" round secondary text-center>
           <ion-icon name="text-outline"></ion-icon>
           Text
         </button>
@@ -82,7 +78,7 @@
           <ion-icon name="person-add"></ion-icon>
           Import
         </button>
-        <button (click)="openUserShare(user)" clear secondary text-center item-right>
+        <button (click)="openUserShare(user)" round secondary text-center item-right>
           <ion-icon name="share"></ion-icon>
           Share
         </button>

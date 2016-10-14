@@ -15,6 +15,7 @@ export class UserData {
   storage = new Storage(LocalStorage);
   users = [];
   profilepic = {};
+  auth: any;
   constructor(private events: Events, private http: Http) { }
 
   getAuth(completeCallBack, failCallBack) {
@@ -37,6 +38,7 @@ export class UserData {
 
     this.authenticate(
       auth => {
+        this.auth = auth;
         var username = auth.userInfo.displayableId;
         this.setUsername(username);
         this.events.publish('user:login');
@@ -44,6 +46,7 @@ export class UserData {
       },
       failCallBack
     );
+
   }
 
   logout(completeCallBack, failCallBack) {
@@ -68,6 +71,7 @@ export class UserData {
         this.users.push(users[i]);
       }
     }
+    console.log('first user', this.users[0]);
     console.log('refused ' + (users.length - this.users.length) + ' users');
     this.events.publish('users:change', this.users);
   }
@@ -113,6 +117,12 @@ export class UserData {
     });
   }
 
+  updateUserThumbs() {
+    for (var i = 0; i < this.users.length; i++) {
+      this.fetchProfilePictureById(this.users[i].userPrincipalName, false);
+    }
+  }
+
   fetchUsersWithAuth(auth, completeCallBack, failCallBack) {
     var url = Conf.resourceUri + '/' + auth.tenantId + '/users?$top=100&api-version=' + Conf.graphApiVersion;
     var values = [];
@@ -124,10 +134,6 @@ export class UserData {
       return res.json();
     }).subscribe(
       data => {
-        var hasNext = false;
-        // var users = data.value;
-        // completeCallBack(users);
-        // console.log('data', data);
         values = values.concat(data.value);
         if (data['odata.nextLink']) {
           this.getNextPage(url, data['odata.nextLink'], auth, values, completeCallBack);
@@ -178,11 +184,15 @@ export class UserData {
   }
 
   fetchProfilePicture(auth) {
-    var url = Conf.resourceUri + '/' + auth.tenantId + '/users/' + auth.userInfo.uniqueId + '/thumbnailPhoto?api-version=' + Conf.graphApiVersion;
+    this.fetchProfilePictureById(auth.userInfo.uniqueId, true);
+  }
+
+  fetchProfilePictureById(id, isUser) {
+    var url = Conf.resourceUri + '/' + this.auth.tenantId + '/users/' + id + '/thumbnailPhoto?api-version=' + Conf.graphApiVersion;
     var oReq = new XMLHttpRequest();
     oReq.open('GET', url, true);
     oReq.setRequestHeader('Content-type', 'image/jpeg');
-    oReq.setRequestHeader('Authorization', 'Bearer ' + auth.accessToken);
+    oReq.setRequestHeader('Authorization', 'Bearer ' + this.auth.accessToken);
     oReq.responseType = 'arraybuffer';
 
     oReq.onload = (oEvent) => {
@@ -190,30 +200,24 @@ export class UserData {
       var reader = new FileReader();
       reader.readAsDataURL(blob);
       reader.onloadend = () => {
-        this.profilepic = reader.result;
+        if (isUser) {
+          this.profilepic = reader.result;
+        } else {
+          // console.log(id);
+          var i = this.users.findIndex(x => x.userPrincipalName === id);
+          var u = this.users[i];
+          u.photo = reader.result;
+          this.users[i] = u;
+          if (i === this.users.length - 1) {
+            this.setUsers(this.users);
+          }
+        }
       };
     };
-
+    oReq.onerror = () => {
+      console.log('no picture for', id);
+    }
     oReq.send();
-
-    /*var url = Conf.resourceUri + '/' + auth.tenantId + '/users/' + auth.userInfo.uniqueId + '/thumbnailPhoto?api-version=' + Conf.graphApiVersion;
-    var hed: Headers = new Headers();
-    console.log(url);
-    // hed.set('Content-type', 'image/jpeg');
-    hed.append('Authorization', 'Bearer ' + auth.accessToken);
-    var opt: RequestOptions = new RequestOptions({ headers: hed });
-    console.log(this.http.get(url, opt));
-    this.http.request(url, opt).subscribe(
-      (resp) => {
-        console.log(resp);
-
-        this.profilepic = resp.text();
-      },
-      err => {
-        console.error(err);
-      },
-      () => { console.log('done'); }
-    );*/
   }
 
   fetchUsers(completeCallBack, failCallBack) {

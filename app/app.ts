@@ -93,7 +93,7 @@ class MyApp {
           }
         );
       } else {
-        alert('You are not connected to the internet, we try to use the data we stored last time you used the app. \nPlease note the this data might be outdated.');
+        alert('You are not connected to the internet, we\'ll try to use the data we stored last time you used the app. \n\nPlease note the this data might be outdated.');
       }
     });
 
