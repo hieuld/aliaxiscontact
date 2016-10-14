@@ -19,11 +19,11 @@ export class ContactData {
     var opt = new ContactFindOptions();
     opt.filter = '';
     opt.desiredFields = ['name', 'emails', 'phoneNumbers'];
-    opt.multiple = true;
     opt.hasPhoneNumber = true;
-
-    Contacts.find(['name', 'emails', 'phoneNumbers'], opt)
+    var t = { 'filter': '', 'multiple': true, 'desiredFields': ['name', 'emails', 'phoneNumbers'] };
+    Contacts.find(['*'], t)
       .then((contacts) => {
+        console.log(contacts);
         this.setContacts(contacts);
         console.log('successfully loaded contacts ...........');
         completeCallBack();
@@ -39,57 +39,30 @@ export class ContactData {
     return this.sanitizer.bypassSecurityTrustUrl(url);
   }
 
-  returnValidPhoto(url, callback) {
-
-    console.log('IMAGE CALLED');
-    var img = new Image();
-    img.onload = function() {
-      // Image is ok
-
-      console.log('IMAGE OK');
-
-      callback(url.value);
-    };
-    img.onerror = function(err) {
-      // Returning a default image for users without photo
-
-      console.log('IMAGE FAILED');
-
-      url.value = '/resources/images/default_usr.png';
-      callback('/resources/images/default_usr.png');
-    };
-    img.src = url.value;
-  };
-
-  fetchPictures(imgURI, completeCallBack, failCallBack) {
-
-    // success then load
-    var url = imgURI;
-
-    this.http.get(url).subscribe(
-      data => { var users = data; console.log('data' + data); completeCallBack(data); },
-      err => { console.error(err); failCallBack(err); },
-      () => { console.log('done'); }
-    );
-  }
-
   setContacts(contacts) {
-  this.contacts = contacts;
-    // console.log('refused ' + (contacts.length - this.contacts.length) + ' users');
-    this.contacts.sort(function(a, b) {
-      var nameA = a.displayName; // ignore upper and lowercase
-      var nameB = b.displayName; // ignore upper and lowercase
-      if (nameA < nameB) {
-        return -1;
-      }
-      if (nameA > nameB) {
-        return 1;
-      }
 
-      // names must be equal
-      return 0;
-    });
-    // this.contacts = contacts.sort((n1, n2) => n1.displayName - n2.displayName);
+    this.contacts = contacts;
+    // console.log('refused ' + (contacts.length - this.contacts.length) + ' users');
+
+    // for (var i = 0; i < contacts.length; i++) {
+    //   if (contacts[i].displayName !== null && contacts[i].phoneNumbers !== null) {
+    //     this.contacts.push(contacts[i]);
+    //   }
+    // }
+    // console.log(this.contacts)
+    this.contacts
+       .filter(x => (x.displayName !== null && x.phoneNumbers !== null))
+      .sort((a, b) => {
+        if (a.displayName < b.displayName) {
+          return -1;
+        } else if (a.displayName > b.displayName) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+      // console.log('refused ' + (contacts.length - this.contacts.length) + ' contacts');
+
   }
 
   getContacts() {

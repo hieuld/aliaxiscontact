@@ -36,7 +36,7 @@ export class UserListPage {
       // this.users =
       this.userData.getUsers(this.nav);
       this.savedUsers = this.users;
-    } 
+    }
   }
 
   ionViewDidLeave() {
@@ -111,7 +111,7 @@ export class UserListPage {
 
   doImport(user) {
     console.log('doImport');
-    Toast.show('Contact saved!', 'medium', 'top').subscribe(
+    Toast.show('Contact saved!', '5000', 'top').subscribe(
       toast => {
         this.contactData.importUser(user);
       },
