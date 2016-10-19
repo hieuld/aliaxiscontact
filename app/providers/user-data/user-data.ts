@@ -15,7 +15,9 @@ export class UserData {
   storage = new Storage(LocalStorage);
   users = [];
   profilepic = {};
+  userThumbs = {};
   auth: any;
+
   constructor(private events: Events, private http: Http) { }
 
   getAuth(completeCallBack, failCallBack) {
@@ -64,19 +66,21 @@ export class UserData {
   }
 
   setUsers(users) {
-    // var count = 0;
     this.users = [];
+    console.log(users[0]);
     for (var i = 0; i < users.length; i++) {
+      // for (var j = 0; j < 16200; j++) {
+      // var i = 2;
       if (users[i].mail !== null && (users[i].mobile !== null || users[i].telephoneNumber !== null)) {
         this.users.push(users[i]);
       }
     }
-    console.log('first user', this.users[0]);
     console.log('refused ' + (users.length - this.users.length) + ' users');
     this.events.publish('users:change', this.users);
   }
 
   getUsers(nav) {
+    this.getUserThumbs();
     if (this.users.length !== 0) {
       return this.users;
     } else {
@@ -95,8 +99,28 @@ export class UserData {
           console.error(error);
           return Promise.resolve();
         }
-        ).then(() => this.getOnlineUsers())
-        .then(() => loading.dismiss());
+        ).then(() => {
+          this.getOnlineUsers();
+        })
+        .then(() => {
+          loading.dismiss();
+        }).then(() => this.cacheUserThumbs());
+    }
+  }
+
+  getUserThumbs() {
+
+    NativeStorage.getItem('userThumbs').then((data) => {
+      this.userThumbs = data;
+      console.log('data', Object.keys(data).length);
+    });
+
+  }
+
+  cacheUserThumbs() {
+    if (Object.keys(this.userThumbs).length > 2) {
+      console.log(this.userThumbs);
+      NativeStorage.setItem('userThumbs', this.userThumbs);
     }
   }
 
@@ -106,57 +130,54 @@ export class UserData {
         console.log('getting online contacts.');
         this.fetchUsers(() => {
           console.log('Successfully loaded online contacts.');
-          NativeStorage.setItem('users', this.users);
+          if (this.users.length != 0) {
+            NativeStorage.setItem('users', this.users);
+          }
           resolve();
         },
           err => {
             console.error(err);
             resolve();
           });
+      } else {
+        resolve();
       }
     });
   }
 
-  updateUserThumbs() {
-    for (var i = 0; i < this.users.length; i++) {
-      this.fetchProfilePictureById(this.users[i].userPrincipalName, false);
-    }
-  }
-
   fetchUsersWithAuth(auth, completeCallBack, failCallBack) {
-    var url = Conf.resourceUri + '/' + auth.tenantId + '/users?$top=100&api-version=' + Conf.graphApiVersion;
-    var values = [];
-    var hed: Headers = new Headers();
-    hed.set('Content-type', 'application/json');
-    hed.append('Authorization', 'Bearer ' + auth.accessToken);
-    var opt: RequestOptions = new RequestOptions({ headers: hed });
-    this.http.get(url, opt).map((res: Response) => {
-      return res.json();
-    }).subscribe(
-      data => {
-        values = values.concat(data.value);
-        if (data['odata.nextLink']) {
-          this.getNextPage(url, data['odata.nextLink'], auth, values, completeCallBack);
-        } else {
-          completeCallBack(values);
-        }
-        // console.log(values.length);
-      },
-      err => {
-        console.error(err);
-        failCallBack(err);
-      },
-      () => { }
-      );
+    if (navigator.connection.type !== 'none') {
+      var url = Conf.resourceUri + '/' + auth.tenantId + '/users?$top=100&api-version=' + Conf.graphApiVersion;
+      var values = [];
+      var hed: Headers = new Headers();
+      hed.set('Content-type', 'application/json');
+      hed.append('Authorization', 'Bearer ' + auth.accessToken);
+      var opt: RequestOptions = new RequestOptions({ headers: hed });
+      this.http.get(url, opt).map((res: Response) => {
+        return res.json();
+      }).subscribe(
+        data => {
+          values = values.concat(data.value);
+          if (data['odata.nextLink']) {
+            this.getNextPage(url, data['odata.nextLink'], auth, values, completeCallBack);
+          } else {
+            completeCallBack(values);
+          }
+        },
+        err => {
+          console.error(err);
+          failCallBack(err);
+        },
+        () => { }
+        );
+    }
   }
 
   getNextPage(url, nextLink, auth, values, completeCallBack) {
     var skiptoken = nextLink.substring(nextLink.search('skiptoken') + 12, nextLink.length - 1);
     skiptoken = '\'' + skiptoken + '\'';
-    // skiptoken = escape(skiptoken);
     var newUrl = url + '&$skiptoken=X' + skiptoken;
 
-    // console.log('url', newUrl);
     var hed: Headers = new Headers();
     hed.set('Content-type', 'application/json');
     hed.append('Authorization', 'Bearer ' + auth.accessToken);
@@ -184,40 +205,52 @@ export class UserData {
   }
 
   fetchProfilePicture(auth) {
-    this.fetchProfilePictureById(auth.userInfo.uniqueId, true);
+    if (navigator.connection.type !== 'none') {
+      this.fetchProfilePictureById(auth.userInfo.uniqueId, true);
+    }
+  }
+
+  updateUserThumbs() {
+    if (navigator.connection.type !== 'none') {
+      for (var i = 0; i < this.users.length; i++) {
+        var id = this.users[i].userPrincipalName;
+        if (!this.userThumbs[id]) {
+          this.fetchProfilePictureById(id, false);
+        } else { console.log('already cached', id); }
+      };
+    }
   }
 
   fetchProfilePictureById(id, isUser) {
-    var url = Conf.resourceUri + '/' + this.auth.tenantId + '/users/' + id + '/thumbnailPhoto?api-version=' + Conf.graphApiVersion;
-    var oReq = new XMLHttpRequest();
-    oReq.open('GET', url, true);
-    oReq.setRequestHeader('Content-type', 'image/jpeg');
-    oReq.setRequestHeader('Authorization', 'Bearer ' + this.auth.accessToken);
-    oReq.responseType = 'arraybuffer';
+    if (!this.userThumbs[id]) {
+      var url = Conf.resourceUri + '/' + this.auth.tenantId + '/users/' + id + '/thumbnailPhoto?api-version=' + Conf.graphApiVersion;
+      var oReq = new XMLHttpRequest();
+      oReq.open('GET', url, true);
+      oReq.setRequestHeader('Content-type', 'image/jpeg');
+      oReq.setRequestHeader('Authorization', 'Bearer ' + this.auth.accessToken);
+      oReq.responseType = 'arraybuffer';
 
-    oReq.onload = (oEvent) => {
-      var blob = new Blob([oReq.response], { type: 'image/jpg' });
-      var reader = new FileReader();
-      reader.readAsDataURL(blob);
-      reader.onloadend = () => {
-        if (isUser) {
-          this.profilepic = reader.result;
-        } else {
-          // console.log(id);
-          var i = this.users.findIndex(x => x.userPrincipalName === id);
-          var u = this.users[i];
-          u.photo = reader.result;
-          this.users[i] = u;
-          if (i === this.users.length - 1) {
-            this.setUsers(this.users);
+      oReq.onload = (oEvent) => {
+        var blob = new Blob([oReq.response], { type: 'image/jpg' });
+        var reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = () => {
+          if (oReq.status !== 404) {
+            if (isUser) {
+              this.profilepic = reader.result;
+            }
+            this.userThumbs[id] = reader.result;
+            console.log(id);
+          } else {
+            console.log('no picture for', id);
           }
-        }
+        };
       };
-    };
-    oReq.onerror = () => {
-      console.log('no picture for', id);
+      oReq.onerror = () => {
+        console.log('404', id);
+      };
+      oReq.send();
     }
-    oReq.send();
   }
 
   fetchUsers(completeCallBack, failCallBack) {
@@ -250,6 +283,7 @@ export class UserData {
         failCallBack(err);
       }
     );
+    NativeStorage.clear();
   }
 
   setUsername(username) {

@@ -9,22 +9,22 @@
     <button menuToggle>
       <ion-icon name="menu"></ion-icon>
     </button>
-    <ion-title>People</ion-title>
-    <button (click)="updateUserThumbs()" round secondary icon-only>
-  <ion-icon name="refresh"></ion-icon>
-</button>
+    <ion-title>People
+      <button (click)="updateUserThumbs()" round icon-only>
+        <ion-icon name="refresh"></ion-icon>
+      </button>
+    </ion-title>
+
   </ion-navbar>
   <ion-item>
-    <ion-label>Search by:
-    </ion-label>
+    <ion-label>Search by:</ion-label>
     <ion-select [(ngModel)]="search">
-      <ion-option value="Name" selected="true" >Name</ion-option>
+      <ion-option value="Name" selected="true">Name</ion-option>
       <ion-option value="Job">Job</ion-option>
       <ion-option value="Department">Department</ion-option>
     </ion-select>
   </ion-item>
   <ion-searchbar (ionInput)="searchUser($event)"></ion-searchbar>
-
 </ion-header>
 
 <ion-content class="outer-content">
@@ -33,8 +33,10 @@
       <ion-card-header>
         <ion-item>
           <ion-avatar item-left>
-            <!-- <ion-img src="img/user.svg" ></ion-img> -->
-            <ion-img [src]="sanitize(user.userPrincipalName)" ></ion-img>
+            <ion-img src="img/user.svg" *ngIf="!userThumbs[user.userPrincipalName]"></ion-img>
+            <ion-img [src]="userThumbs[user.userPrincipalName]" *ngIf="userThumbs[user.userPrincipalName]" ></ion-img>
+            <!-- <ion-img [src]="sanitize(user.userPrincipalName)" *ngIf="userThumbs[user.userPrincipalName]"></ion-img> -->
+
           </ion-avatar>
           {{user.displayName}}
         </ion-item>
@@ -67,11 +69,11 @@
 
       <ion-item>
         <button (click)="doCall(user)" round secondary text-center>
-          <ion-icon name="call-outline"></ion-icon>
+          <ion-icon name="call"></ion-icon>
           Call
         </button>
         <button (click)="doText(user)" round secondary text-center>
-          <ion-icon name="text-outline"></ion-icon>
+          <ion-icon name="text"></ion-icon>
           Text
         </button>
         <button (click)="doImport(user)" round secondary text-center item-left>

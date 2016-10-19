@@ -14,9 +14,12 @@ export class UserListPage {
   actionSheet: ActionSheet;
   users = [];
   savedUsers = [];
+  userThumbs = {};
   prevValue = '';
   search = 'Name';
-
+  loading = Loading.create({
+    content: 'Loading Users...'
+  });;
   constructor(
     private nav: NavController,
     private userData: UserData,
@@ -26,18 +29,30 @@ export class UserListPage {
 
 
   sanitize(url: string) {
-    // console.log(url);
-    this.userData.fetchProfilePictureById(url, true);
-    return this.sanitizer.bypassSecurityTrustUrl(url);
+    //  console.log(url);
+    return this.userData[url];
+
+    // this.userData.fetchProfilePictureById(url, false);
+    // return this.sanitizer.bypassSecurityTrustUrl(this.userData.userThumbs[url]);
   }
 
   ionViewWillEnter() {
     console.log('user-list ionviewWillEnter');
     this.getUsers();
+    // this.userData.getUserThumbs();
     this.doSubscribe();
   }
 
+  ionViewDidEnter() {
+    console.log('user-list ionViewDidEnter');
+    if (!this.userThumbs || Object.keys(this.userThumbs).length === 2) {
+      this.userThumbs = this.userData.userThumbs;
+    }
+  }
+
   getUsers() {
+    this.userData.getUserThumbs()
+    this.userThumbs = this.userData.userThumbs;
     if (this.users.length <= 0) {
       this.setUsers(this.userData.getUsers(this.nav));
       this.savedUsers = this.users;
@@ -46,9 +61,11 @@ export class UserListPage {
 
   updateUserThumbs() {
     this.userData.updateUserThumbs();
+    this.userThumbs = this.userData.userThumbs;
   }
 
   ionViewDidLeave() {
+    this.userData.cacheUserThumbs();
     console.log('user-list ionViewDidLeave');
     this.events.unsubscribe('users:change', () => { });
   }
@@ -66,12 +83,12 @@ export class UserListPage {
   }
 
   setUsers(users) {
-  this.users = users;
+    this.users = users;
   }
 
   searchUser(ev: any) {
     // Reset items back to all of the items
-    if (this.savedUsers || this.savedUsers.length === 0) {
+    if (!this.savedUsers || this.savedUsers.length === 0) {
       this.savedUsers = this.users;
     }
     this.users = this.savedUsers;
@@ -97,7 +114,6 @@ export class UserListPage {
           break;
         default:
           this.users = this.users.filter((item) => {
-            //  console.log(item.displayName);
             if (item.displayName !== null) {
               return (item.displayName.toLowerCase().indexOf(val.toLowerCase()) > -1);
             }
@@ -163,41 +179,6 @@ export class UserListPage {
   openUserShare(user) {
     var vcard = this.buildVCard(user);
     SocialSharing.share(vcard, 'test', '', '');
-    /*
-    let actionSheet = ActionSheet.create({
-      title: 'Share ' + user.displayName,
-      buttons: [
-        {
-          text: 'Copy Link',
-          handler: () => {
-            console.log('Copy link clicked on https://twitter.com/' + user.twitter);
-            if (window['cordova'] && window['cordova'].plugins.clipboard) {
-              window['cordova'].plugins.clipboard.copy('https://twitter.com/' + user.twitter);
-            }
-          }
-        }, {
-          text: 'Share ContactCard',
-          handler: () => {
-            console.log('Share via clicked');
-          }
-        },
-        {
-          text: 'Share via ...',
-          handler: () => {
-            console.log('Share via clicked');
-          }
-        },
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: () => {
-            console.log('Cancel clicked');
-          }
-        }
-      ]
-    });
-
-    this.nav.present(actionSheet);*/
   }
 
   doAlert(message: string) {
