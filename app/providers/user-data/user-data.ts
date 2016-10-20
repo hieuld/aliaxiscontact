@@ -43,6 +43,7 @@ export class UserData {
     this.authenticate(
       auth => {
         this.auth = auth;
+        this.getOnlineUsers();
         var username = auth.userInfo.displayableId;
         this.setUsername(username);
         this.events.publish('user:login');
@@ -118,10 +119,9 @@ export class UserData {
   }
 
   getUserThumbs() {
-
     NativeStorage.getItem('userThumbs').then((data) => {
       this.userThumbs = data;
-      console.log('data', Object.keys(data).length);
+      // console.log('data', Object.keys(data).length);
     });
 
   }

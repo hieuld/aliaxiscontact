@@ -71,7 +71,8 @@ class MyApp {
       if (navigator.connection.type !== 'none') {
         var t0 = performance.now();
         var t1 = 0;
-        StatusBar.styleDefault();
+        StatusBar.overlaysWebView(false);
+        StatusBar.backgroundColorByHexString('#1e117b');
         // try to login
         // let loading = Loading.create({
         //   content: 'Logging in...'
@@ -84,7 +85,7 @@ class MyApp {
             this.enableMenu(true);
             t1 = performance.now();
             console.log('Call to log in took ' + (t1 - t0) / 1000 + ' seconds.');
-            // loading.dismiss();
+
           },
           () => {
             console.log('login failed ..........');
@@ -106,9 +107,7 @@ class MyApp {
         this.nav.setRoot(page.component, { tabIndex: page.index });
 
     } else {
-      if (page.index !== this.nav.root.tabIndex)
-
-        this.nav.setRoot(page.component);
+      this.nav.setRoot(page.component);
     }
 
     if (page.title === 'Logout') {

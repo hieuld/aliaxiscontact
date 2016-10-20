@@ -9,7 +9,10 @@
 
 <ion-content class="outer-content">
   <div id='test' padding-top text-center *ngIf="username">
-    <img  [src]="sanitize(profilepic)">
+    <!-- <img  [src]="sanitize(profilepic)"> -->
+    <img src="img/user.svg" *ngIf="profilepic"/>
+    <img [src]="sanitize(profilepic)" *ngIf="!profilepic">
+    <h3 *ngIf="profilepic">Please upload a profile picture on Share Point</h3>
     <h2>{{username}}</h2>
     <!-- <ion-card-content class="outer-content">
       <ion-list>

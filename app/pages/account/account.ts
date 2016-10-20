@@ -43,8 +43,6 @@ export class AccountPage {
     });
   }
 
-
-
   logout() {
     this.userData.logout(
       () => { },
