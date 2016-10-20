@@ -19,7 +19,8 @@ export class UserListPage {
   search = 'Name';
   loading = Loading.create({
     content: 'Loading Users...'
-  });;
+  });
+
   constructor(
     private nav: NavController,
     private userData: UserData,
@@ -38,25 +39,31 @@ export class UserListPage {
 
   ionViewWillEnter() {
     console.log('user-list ionviewWillEnter');
-    this.getUsers();
+    if (this.users.length === 0) {
+      this.getUsers();
+    }
     // this.userData.getUserThumbs();
     this.doSubscribe();
   }
 
   ionViewDidEnter() {
     console.log('user-list ionViewDidEnter');
-    if (!this.userThumbs || Object.keys(this.userThumbs).length === 2) {
-      this.userThumbs = this.userData.userThumbs;
-    }
+    this.updateUserThumbs();
   }
 
+
   getUsers() {
-    this.userData.getUserThumbs()
-    this.userThumbs = this.userData.userThumbs;
+
     if (this.users.length <= 0) {
       this.setUsers(this.userData.getUsers(this.nav));
       this.savedUsers = this.users;
     }
+    this.userData.getUserThumbs();
+    this.userThumbs = this.userData.userThumbs;
+  }
+
+  getNextPage(infiniteScroll) {
+    this.userData.getNextPage(infiniteScroll);
   }
 
   updateUserThumbs() {
@@ -83,6 +90,7 @@ export class UserListPage {
   }
 
   setUsers(users) {
+    // console.log(users[0]);
     this.users = users;
   }
 
@@ -94,34 +102,65 @@ export class UserListPage {
     this.users = this.savedUsers;
     // set val to the value of the rchbar
     let val = ev.target.value;
+    var searchType;
+
+
+    switch (this.search) {
+      case 'Job':
+        searchType = 'jobTitle';
+        break;
+      case 'Department':
+        searchType = 'department';
+        break;
+      default:
+        searchType = 'displayName';
+        break;
+    }
+
+
+
+
 
     // if the value is an empty string don't filter the items
-    if (val && val.trim() !== '') {
-      switch (this.search) {
-        case 'Job':
-          this.users = this.users.filter((item) => {
-            if (item.jobTitle !== null) {
-              return (item.jobTitle.toLowerCase().indexOf(val.toLowerCase()) > -1);
-            }
-          });
-          break;
-        case 'Department':
-          this.users = this.users.filter((item) => {
-            if (item.department !== null) {
-              return (item.department.toLowerCase().indexOf(val.toLowerCase()) > -1);
-            }
-          });
-          break;
-        default:
-          this.users = this.users.filter((item) => {
-            if (item.displayName !== null) {
-              return (item.displayName.toLowerCase().indexOf(val.toLowerCase()) > -1);
-            }
-          });
-      }
-
+    if (val && val.trim() !== '' && (val.length) >= 3) {
+      this.userData.findUser(val, searchType);
     }
     this.prevValue = val;
+    // // Reset items back to all of the items
+    // if (!this.savedUsers || this.savedUsers.length === 0) {
+    //   this.savedUsers = this.users;
+    // }
+    // this.users = this.savedUsers;
+    // // set val to the value of the rchbar
+    // let val = ev.target.value;
+    //
+    // // if the value is an empty string don't filter the items
+    // if (val && val.trim() !== '') {
+    //   switch (this.search) {
+    //     case 'Job':
+    //       this.users = this.users.filter((item) => {
+    //         if (item.jobTitle !== null) {
+    //           return (item.jobTitle.toLowerCase().indexOf(val.toLowerCase()) > -1);
+    //         }
+    //       });
+    //       break;
+    //     case 'Department':
+    //       this.users = this.users.filter((item) => {
+    //         if (item.department !== null) {
+    //           return (item.department.toLowerCase().indexOf(val.toLowerCase()) > -1);
+    //         }
+    //       });
+    //       break;
+    //     default:
+    //       this.users = this.users.filter((item) => {
+    //         if (item.displayName !== null) {
+    //           return (item.displayName.toLowerCase().indexOf(val.toLowerCase()) > -1);
+    //         }
+    //       });
+    //   }
+    //
+    // }
+    // this.prevValue = val;
   }
 
   doImport(user) {

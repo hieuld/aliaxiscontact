@@ -17,6 +17,8 @@ export class UserData {
   profilepic = {};
   userThumbs = {};
   auth: any;
+  nextLink = '';
+  url = '';
 
   constructor(private events: Events, private http: Http) { }
 
@@ -65,16 +67,23 @@ export class UserData {
     );
   }
 
-  setUsers(users) {
-    this.users = [];
-    console.log(users[0]);
+  checkUsers(users) {
+    var returnValues = [];
     for (var i = 0; i < users.length; i++) {
       // for (var j = 0; j < 16200; j++) {
       // var i = 2;
-      if (users[i].mail !== null && (users[i].mobile !== null || users[i].telephoneNumber !== null)) {
-        this.users.push(users[i]);
+      if (users[i]) {
+        if (users[i].mail !== null && (users[i].mobile !== null || users[i].telephoneNumber !== null)) {
+          this.users.push(users[i]);
+        }
       }
     }
+    // return returnValues;
+  }
+
+  setUsers(users) {
+    this.users = [];
+    this.checkUsers(users);
     console.log('refused ' + (users.length - this.users.length) + ' users');
     this.events.publish('users:change', this.users);
   }
@@ -130,7 +139,7 @@ export class UserData {
         console.log('getting online contacts.');
         this.fetchUsers(() => {
           console.log('Successfully loaded online contacts.');
-          if (this.users.length != 0) {
+          if (this.users.length !== 0) {
             NativeStorage.setItem('users', this.users);
           }
           resolve();
@@ -147,22 +156,21 @@ export class UserData {
 
   fetchUsersWithAuth(auth, completeCallBack, failCallBack) {
     if (navigator.connection.type !== 'none') {
-      var url = Conf.resourceUri + '/' + auth.tenantId + '/users?$top=100&api-version=' + Conf.graphApiVersion;
+      this.url = Conf.resourceUri + '/' + auth.tenantId + '/users?$top=100&api-version=' + Conf.graphApiVersion;
       var values = [];
       var hed: Headers = new Headers();
       hed.set('Content-type', 'application/json');
       hed.append('Authorization', 'Bearer ' + auth.accessToken);
       var opt: RequestOptions = new RequestOptions({ headers: hed });
-      this.http.get(url, opt).map((res: Response) => {
+      this.http.get(this.url, opt).map((res: Response) => {
         return res.json();
       }).subscribe(
         data => {
-          values = values.concat(data.value);
+          values = data.value;
           if (data['odata.nextLink']) {
-            this.getNextPage(url, data['odata.nextLink'], auth, values, completeCallBack);
-          } else {
-            completeCallBack(values);
+            this.nextLink = data['odata.nextLink'];
           }
+          completeCallBack(values);
         },
         err => {
           console.error(err);
@@ -173,35 +181,69 @@ export class UserData {
     }
   }
 
-  getNextPage(url, nextLink, auth, values, completeCallBack) {
-    var skiptoken = nextLink.substring(nextLink.search('skiptoken') + 12, nextLink.length - 1);
-    skiptoken = '\'' + skiptoken + '\'';
-    var newUrl = url + '&$skiptoken=X' + skiptoken;
-
-    var hed: Headers = new Headers();
-    hed.set('Content-type', 'application/json');
-    hed.append('Authorization', 'Bearer ' + auth.accessToken);
-    var opt: RequestOptions = new RequestOptions({ headers: hed });
-    this.http.get(newUrl, opt).map((res: Response) => {
-      return res.json();
-    })
-      .subscribe(data => {
-        values = values.concat(data.value);
-        console.log(values.length);
-        if (data['odata.nextLink']) {
-          this.getNextPage(url, data['odata.nextLink'], auth, values, completeCallBack);
-        } else {
-          completeCallBack(values);
-        }
-        return data;
+  findUser(val, searchtType) {
+    if (navigator.connection.type !== 'none') {
+      var query = '&$filter=startswith(' + searchtType + ',\'' + val + '\')';
+      if (searchtType === 'displayName') {
+        query += ' or startswith(surname,\'' + val + '\')';
       }
-      ,
-      err => {
-        console.error(err);
-        completeCallBack(values);
-      },
-      () => { }
-      );
+      this.url = Conf.resourceUri + '/' + this.auth.tenantId + '/users?api-version=' + Conf.graphApiVersion + query;
+      var values = [];
+      var hed: Headers = new Headers();
+      hed.set('Content-type', 'application/json');
+      hed.append('Authorization', 'Bearer ' + this.auth.accessToken);
+      var opt: RequestOptions = new RequestOptions({ headers: hed });
+      this.http.get(this.url, opt).map((res: Response) => {
+        return res.json();
+      }).subscribe(
+        data => {
+          values = data.value;
+          this.setUsers(values);
+          if (data['odata.nextLink']) {
+            this.nextLink = data['odata.nextLink'];
+          }
+        },
+        err => {
+          console.error(err);
+        },
+        () => { }
+        );
+    }
+  }
+
+  getNextPage(infiniteScroll) {
+    if (this.nextLink !== '') {
+      var skiptoken = this.nextLink.substring(this.nextLink.search('skiptoken') + 12, this.nextLink.length - 1);
+      skiptoken = '\'' + skiptoken + '\'';
+      var newUrl = this.url + '&$skiptoken=X' + skiptoken;
+
+      var hed: Headers = new Headers();
+      hed.set('Content-type', 'application/json');
+      hed.append('Authorization', 'Bearer ' + this.auth.accessToken);
+      var opt: RequestOptions = new RequestOptions({ headers: hed });
+      this.http.get(newUrl, opt).map((res: Response) => {
+        return res.json();
+      })
+        .subscribe(data => {
+          infiniteScroll.complete();
+          console.log('this.users.length', this.users.length);
+          this.checkUsers(data.value);
+          console.log('this.users.length', this.users.length);
+          if (data['odata.nextLink']) {
+            this.nextLink = data['odata.nextLink'];
+          } else {
+            this.nextLink = '';
+          }
+        }
+        ,
+        err => {
+          console.error(err);
+        },
+        () => { }
+        );
+    } else {
+      infiniteScroll.complete();
+    }
   }
 
   fetchProfilePicture(auth) {
@@ -214,9 +256,11 @@ export class UserData {
     if (navigator.connection.type !== 'none') {
       for (var i = 0; i < this.users.length; i++) {
         var id = this.users[i].userPrincipalName;
-        if (!this.userThumbs[id]) {
-          this.fetchProfilePictureById(id, false);
-        } else { console.log('already cached', id); }
+        if (this.users[i]['thumbnailPhoto@odata.mediaContentType']) {
+          if (!this.userThumbs[id]) {
+            this.fetchProfilePictureById(id, false);
+          } else { console.log('already cached', id); }
+        }
       };
     }
   }

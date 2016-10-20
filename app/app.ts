@@ -102,10 +102,13 @@ class MyApp {
 
   openPage(page: PageObj) {
     if (page.index) {
-      this.nav.setRoot(page.component, { tabIndex: page.index });
+      if (page.index !== this.nav.root.tabIndex)
+        this.nav.setRoot(page.component, { tabIndex: page.index });
 
     } else {
-      this.nav.setRoot(page.component);
+      if (page.index !== this.nav.root.tabIndex)
+
+        this.nav.setRoot(page.component);
     }
 
     if (page.title === 'Logout') {
@@ -145,3 +148,4 @@ class MyApp {
 ionicBootstrap(MyApp, [UserData, ContactData, Conf, Lib], {
   tabbarPlacement: 'bottom'
 });
+;
