@@ -1,6 +1,6 @@
 import {
   Component,
-  ViewChild }    from '@angular/core';
+  ViewChild, enableProdMode }    from '@angular/core';
 
 import {
   ionicBootstrap,
@@ -21,6 +21,7 @@ import { UserData }     from './providers/user-data/user-data';
 import { ContactData }  from './providers/contact-data/contact-data';
 import { Conf }         from './providers/conf/conf';
 import { Lib }          from './providers/lib/lib';
+enableProdMode();
 
 interface PageObj {
   title: string;
@@ -65,31 +66,19 @@ class MyApp {
     // private contactData: ContactData,
     platform: Platform
   ) {
-
+    StatusBar.overlaysWebView(false);
+    StatusBar.backgroundColorByHexString('#1e117b');
     // Call any initial plugins when ready
     platform.ready().then(() => {
       if (navigator.connection.type !== 'none') {
-        var t0 = performance.now();
-        var t1 = 0;
         StatusBar.overlaysWebView(false);
         StatusBar.backgroundColorByHexString('#1e117b');
-        // try to login
-        // let loading = Loading.create({
-        //   content: 'Logging in...'
-        // });
-        //
-        // this.nav.present(loading);
         this.userData.login(
           () => {
-            console.log('login successfully ..........');
             this.enableMenu(true);
-            t1 = performance.now();
-            console.log('Call to log in took ' + (t1 - t0) / 1000 + ' seconds.');
-
           },
           () => {
-            console.log('login failed ..........');
-            // loading.dismiss();
+            console.error('login failed ..........');
             this.enableMenu(false);
           }
         );
@@ -128,12 +117,10 @@ class MyApp {
 
   listenToLoginEvents() {
     this.events.subscribe('user:login', () => {
-      console.log('already loged-in');
       this.enableMenu(true);
     });
 
     this.events.subscribe('user:logout', () => {
-      console.log('already loged-out');
       this.enableMenu(false);
     });
   }

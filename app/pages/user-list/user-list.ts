@@ -30,7 +30,6 @@ export class UserListPage {
 
 
   sanitize(url: string) {
-    //  console.log(url);
     return this.userData[url];
 
     // this.userData.fetchProfilePictureById(url, false);
@@ -38,16 +37,15 @@ export class UserListPage {
   }
 
   ionViewWillEnter() {
-    console.log('user-list ionviewWillEnter');
     if (this.users.length === 0) {
       this.getUsers();
     }
+    this.savedUsers = this.users;
     // this.userData.getUserThumbs();
     this.doSubscribe();
   }
 
   ionViewDidEnter() {
-    console.log('user-list ionViewDidEnter');
     this.updateUserThumbs();
   }
 
@@ -56,8 +54,8 @@ export class UserListPage {
 
     if (this.users.length <= 0) {
       this.setUsers(this.userData.getUsers(this.nav));
-      this.savedUsers = this.users;
     }
+    this.savedUsers = this.userData.getUsers(this.nav);
     this.userData.getUserThumbs();
     this.userThumbs = this.userData.userThumbs;
   }
@@ -73,7 +71,6 @@ export class UserListPage {
 
   ionViewDidLeave() {
     this.userData.cacheUserThumbs();
-    console.log('user-list ionViewDidLeave');
     this.events.unsubscribe('users:change', () => { });
   }
 
@@ -90,7 +87,6 @@ export class UserListPage {
   }
 
   setUsers(users) {
-    // console.log(users[0]);
     this.users = users;
   }
 
@@ -104,7 +100,6 @@ export class UserListPage {
     let val = ev.target.value;
     var searchType;
 
-
     switch (this.search) {
       case 'Job':
         searchType = 'jobTitle';
@@ -116,88 +111,44 @@ export class UserListPage {
         searchType = 'displayName';
         break;
     }
-
-
-
-
-
     // if the value is an empty string don't filter the items
     if (val && val.trim() !== '' && (val.length) >= 3) {
       this.userData.findUser(val, searchType);
+    } else {
+      this.users = this.savedUsers;
     }
     this.prevValue = val;
-    // // Reset items back to all of the items
-    // if (!this.savedUsers || this.savedUsers.length === 0) {
-    //   this.savedUsers = this.users;
-    // }
-    // this.users = this.savedUsers;
-    // // set val to the value of the rchbar
-    // let val = ev.target.value;
-    //
-    // // if the value is an empty string don't filter the items
-    // if (val && val.trim() !== '') {
-    //   switch (this.search) {
-    //     case 'Job':
-    //       this.users = this.users.filter((item) => {
-    //         if (item.jobTitle !== null) {
-    //           return (item.jobTitle.toLowerCase().indexOf(val.toLowerCase()) > -1);
-    //         }
-    //       });
-    //       break;
-    //     case 'Department':
-    //       this.users = this.users.filter((item) => {
-    //         if (item.department !== null) {
-    //           return (item.department.toLowerCase().indexOf(val.toLowerCase()) > -1);
-    //         }
-    //       });
-    //       break;
-    //     default:
-    //       this.users = this.users.filter((item) => {
-    //         if (item.displayName !== null) {
-    //           return (item.displayName.toLowerCase().indexOf(val.toLowerCase()) > -1);
-    //         }
-    //       });
-    //   }
-    //
-    // }
-    // this.prevValue = val;
   }
 
   doImport(user) {
-    console.log('doImport');
     Toast.show('Contact saved!', '5000', 'top').subscribe(
       toast => {
+        user.photo = this.userThumbs[user.userPrincipalName];
         this.contactData.importUser(user);
       },
       error => {
-        console.log('Error', error);
+        console.error('Error', error);
       },
       () => {
-        console.log('Completed');
+        console.error('Completed');
       }
     );
   }
 
   doCall(user) {
 
-    if (!Lib.hasValue(user)) { console.log('user = null'); return; }
-    if (!Lib.hasValue(user.mobile)) { console.log('no phone number'); return; }
-
-    console.log('calling ... ' + user.mobile);
+    if (!Lib.hasValue(user)) { console.error('user = null'); return; }
+    if (!Lib.hasValue(user.mobile)) { console.error('no phone number'); return; }
     Lib.call(user.mobile);
   }
 
   doText(user) {
-
-    if (!Lib.hasValue(user)) { console.log('user = null'); return; }
-    if (!Lib.hasValue(user.mobile)) { console.log('no phone number'); return; }
-
-    console.log('sms ... ' + user.mobile);
+    if (!Lib.hasValue(user)) { console.error('user = null'); return; }
+    if (!Lib.hasValue(user.mobile)) { console.error('no phone number'); return; }
     Lib.text(user.mobile);
   }
 
   buildVCard(contact) {
-    console.log('Contact', contact);
     var str = contact.displayName + '\n';
     (contact.mobile) ? (str += 'Mobile: ' + contact.mobile + '\n') : ('');
     (contact.telephoneNumber) ? (str += 'Phone (fix): ' + contact.telephoneNumber + '\n') : ('');
@@ -209,7 +160,6 @@ export class UserListPage {
     var vcard = str;
     // 'FN:' + contact.name.formatted + '\n' +
 
-    console.log(vcard);
     // var file = new Blob([vcard], {type: 'vsf'});
 
     return vcard;

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Contact, Contacts, ContactFindOptions, File, ContactField } from 'ionic-native';
+import { Contact, Contacts, ContactFindOptions, File, ContactField, Diagnostic } from 'ionic-native';
 import { Lib } from '../../providers/lib/lib';
 import { Http, Headers, RequestOptions, Response } from '@angular/http';
 import { Conf } from '../conf/conf';
@@ -14,15 +14,14 @@ export class ContactData {
 
   loadContacts(completeCallBack, failComeBack) {
     // find all contacts
-    var t = { 'filter': '', 'multiple': true, 'desiredFields': ['name', 'emails', 'phoneNumbers'] };
+    var t = { 'filter': '', 'multiple': true, 'hasPhoneNumber': true, 'desiredFields': ['name', 'emails', 'phoneNumbers', 'photos'] };
     Contacts.find(['*'], t)
       .then((contacts) => {
         this.setContacts(contacts);
-        console.log('successfully loaded contacts ...........');
         completeCallBack();
       })
       .catch((err) => {
-        console.log('failed to load contacts');
+        console.error('failed to load contacts');
         console.error(err);
         failComeBack(err);
       });
@@ -33,8 +32,7 @@ export class ContactData {
   }
 
   setContacts(contacts) {
-    this.contacts = contacts;
-    this.contacts
+    this.contacts = contacts
       .filter(x => (x.displayName !== null && x.phoneNumbers !== null))
       .sort((a, b) => {
         if (a.displayName < b.displayName) {
@@ -45,19 +43,15 @@ export class ContactData {
           return 0;
         }
       });
-    // console.log('refused ' + (contacts.length - this.contacts.length) + ' contacts');
-
   }
 
   getContacts() {
     if (this.contacts !== undefined) {
-      console.log('#contacts', this.contacts.length);
       if (this.contacts.length > 0) {
         return this.contacts;
       }
     }
     this.loadContacts(() => {
-      console.log('contacts were empty, reloading them now.');
       return this.contacts;
     },
       err => {
@@ -65,11 +59,9 @@ export class ContactData {
       }
     );
   }
-
   pickupAContact(completeCallBack, failComeBack) {
     Contacts.pickContact()
       .then((contact) => {
-        console.log(contact);
         completeCallBack(contact);
       })
       .catch((err) => {
@@ -79,50 +71,81 @@ export class ContactData {
   }
 
   saveContact(test, user) {
-    var contact;
+    // var contact;
     if (test !== undefined) {
-      contact = test;
-      console.log('contact already exists');
-      console.log(contact.phoneNumbers !== null, user.mobile !== null);
-      if (/*contact.phoneNumbers !== null && */user.mobile !== null) {
-
-        if (!contact.phoneNumbers) {
-          console.log('phoneNumbers was empty');
-          contact.phoneNumbers = [];
-          console.log(contact.displayName, user.mobile);
-          var cfMobNr = new ContactField('mobile', user.mobile);
-          contact.phoneNumbers.push(cfMobNr);
-          console.log(contact.displayName, user.telephoneNumber);
-          var cfTelNr = new ContactField('home', user.telephoneNumber);
-         contact.phoneNumbers.push(cfTelNr);
+      // contact = test;
+      if (user.mobile !== null) {
+        if (!test.phoneNumbers) {
+          test.phoneNumbers = [];
+          var cfMobNr = new ContactField('Mobile', user.mobile);
+          test.phoneNumbers.push(cfMobNr);
+          var cfTelNr = new ContactField('Home', user.telephoneNumber);
+          test.phoneNumbers.push(cfTelNr);
         } else {
-          if (contact.phoneNumbers.filter(x => x.value.replace(' ', '') === user.mobile.replace(' ', '')).length !== 0) {
-            console.log(contact.displayName, user.mobile);
-            var cf = new ContactField('mobile', user.mobile);
-            contact.phoneNumbers.push(cf);
+          if (test.phoneNumbers.filter(x => x.value.replace(' ', '') === user.mobile.replace(' ', '')).length < 0) {
+            console.log(test.phoneNumbers.filter(x => x.value.replace(' ', '') === user.mobile.replace(' ', '')).length);
+            var cf = new ContactField('Mobile', user.mobile);
+            test.phoneNumbers.push(cf);
           }
-          if (contact.phoneNumbers.filter(x => x.value.replace(' ', '') === user.telephoneNumber.replace(' ', '')).length !== 0) {
-            console.log(contact.displayName, user.telephoneNumber);
-            var cf = new ContactField('home', user.telephoneNumber);
-            contact.phoneNumbers.push(cf);
+          if (test.phoneNumbers.filter(x => x.value.replace(' ', '') === user.telephoneNumber.replace(' ', '')).length < 0) {
+            console.log(test.phoneNumbers.filter(x => x.value.replace(' ', '') === user.telephoneNumber.replace(' ', '')).length);
+            var cf = new ContactField('Home', user.telephoneNumber);
+            test.phoneNumbers.push(cf);
           }
         }
       }
+      if (user.mail != null) {
+        if (!test.emails) {
+          test.emails = [];
+        }
+        if (test.emails.filter(x => x.value.replace(' ', '') === user.mail.replace(' ', '')).length < 0) {
+          test.emails.push(new ContactField('Work', user.mail));
+        }
+      }
+
+      if (user.department != null) {
+        if (!test.organizations) {
+          test.organizations = [];
+        }
+        test.organizations.push({ type: 'Work', title: user.jobTitle, department: user.department });
+        console.log(test.organizations);
+      }
+
+      if (user.photo !== undefined && user.photo !== null) {
+        if (!test.photos) {
+          test.photos = [];
+        }
+        var cf = new ContactField('base64', user.photo);
+        test.photos.push(cf);
+      }
+      test.save().then(
+        (contact) => {
+          console.log('Contact saved!', test);
+          console.log(contact);
+          this.contacts = [];
+          this.loadContacts(() =>
+            this.setContacts(this.getContacts()), console.error);
+        },
+        (error: any) => console.error('Error saving contact.', error));
+
     } else {
-      console.log('new contact');
-      contact = this.createContact(user);
+
+      test = this.createContact(user);
+      test.save().then(
+        (contact) => {
+          console.log('Contact saved!', test);
+          console.log(contact);
+          this.contacts = [];
+          this.loadContacts(() =>
+            this.setContacts(this.getContacts()), console.error);
+        },
+        (error: any) => console.error('Error saving contact.', error));
     }
-    contact.save().then((contact) => {
-      alert('saved');
-    }, (error) => {
-      alert(error);
-    });
-    this.contacts = [];
-    this.setContacts(this.getContacts());
+
   }
 
   createContact(user) {
-    // console.log('contact bestaat nog niet');
+    // return new Promise(resolve => {
     var contact = Contacts.create();
     contact.phoneNumbers = [];
     contact.organizations = [];
@@ -131,29 +154,48 @@ export class ContactData {
       contact.displayName = user.displayName;
     }
     if (user.mail != null) {
-      contact.emails.push(new ContactField('work', user.mail));
+      contact.emails.push(new ContactField('Work', user.mail));
     }
 
     if (user.mobile !== null) {
-      var cf = new ContactField('mobile', user.mobile);
+      var cf = new ContactField('Mobile', user.mobile);
       contact.phoneNumbers.push(cf);
     }
 
     if (user.telephoneNumber !== null) {
-      contact.phoneNumbers.push(new ContactField('home', user.telephoneNumber));
+      contact.phoneNumbers.push(new ContactField('Home', user.telephoneNumber));
 
     }
-    if (user.department != null) { contact.organizations.push({ title: user.jobTitle, department: user.department }); }
-    // contact.organizations.push(new ContactOrganization (user.department));
-    console.log(contact.organizations[0].name);
-    console.log(contact.organizations[0].department);
+    if (user.department != null) {
+      contact.organizations.push({ title: user.jobTitle, department: user.department });
+    }
+
+    if (user.photo !== undefined && user.photo !== null) {
+      if (!contact.photos) {
+        contact.photos = [];
+      }
+      var cf = new ContactField('base64', user.photo);
+      contact.photos.push(cf);
+
+    } else {
+      // resolve();
+    }
     return contact;
+    // });
   }
 
   findUser(user) {
     for (var i = 0; i < this.contacts.length; i++) {
       if (this.contacts[i].displayName === user.displayName) {
-        console.log(this.contacts[i].displayName);
+        return this.contacts[i];
+      }
+    }
+  }
+
+  findUserByName(userName) {
+    for (var i = 0; i < this.contacts.length; i++) {
+      if (this.contacts[i].displayName.toLowerCase().indexOf(userName.toLowerCase()) > -1) {
+        // if (this.contacts[i].displayName === userName) {
         return this.contacts[i];
       }
     }
@@ -167,7 +209,6 @@ export class ContactData {
       this.saveContact(test, user);
     } else {
       var test;
-      console.log('contacts was undefined, loading them now.');
       this.loadContacts(() => {
         test = this.findUser(user);
         this.saveContact(test, user);
@@ -177,5 +218,6 @@ export class ContactData {
         }
       );
     }
+
   }
 }

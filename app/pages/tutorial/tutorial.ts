@@ -4,97 +4,41 @@ import { TabsPage } from '../tabs/tabs';
 import { ContactData } from '../../providers/contact-data/contact-data';
 
 @Component({
-    templateUrl: 'build/pages/tutorial/tutorial.html',
+  templateUrl: 'build/pages/tutorial/tutorial.html',
 })
 
 export class TutorialPage {
 
-    constructor(private nav: NavController, private menu: MenuController, private contactData: ContactData) {}
+  constructor(private nav: NavController, private menu: MenuController, private contactData: ContactData) { }
 
-    presentLoadingDefault() {
-      // let loading = Loading.create({
-      //   content: 'Loading Contact...'
-      // });
-      //
-      // this.nav.present(loading);
-      //
-      // this.contactData.loadContacts(
-      //   () => {
-      //     // setTimeout(() => {
-      //     //   loading.dismiss();
-      //     //   this.startApp();
-      //     // }, 1000);
-      //     console.log('miljaar de doeme');
-      //     loading.dismiss();
-      //     this.startApp();
-      //   },
-      //   err => {
-      //     console.error(err);
-      //   }
-      // );
-    }
+  presentLoadingDefault() { }
 
-    presentLoadingCustom() {
-      // let loading = Loading.create({
-      //   spinner: 'hide',
-      //   content: `
-      //     <div class="custom-spinner-container">
-      //     <div class="custom-spinner-box"></div>
-      //     </div>`,
-      //   duration: 5000
-      // });
-      //
-      // loading.onDismiss(() => {
-      //   console.log('Dismissed loading');
-      // });
-      //
-      // this.nav.present(loading);
-    }
+  presentLoadingCustom() { }
 
-    presentLoadingText() {
-      // let loading = Loading.create({
-      //   spinner: 'hide',
-      //   content: 'Loading Please Wait...'
-      // });
-      //
-      // this.nav.present(loading);
-      //
-      // setTimeout(() => {
-      //
-      // }, 1000);
-      //
-      // setTimeout(() => {
-      //   loading.dismiss();
-  // }, 5000);
-    }
+  presentLoadingText() { }
 
+  startApp() {
+    this.nav.push(TabsPage);
+  }
 
-    startApp() {
-        this.nav.push(TabsPage);
-    }
+  show1() {
+    this.presentLoadingDefault();
+  }
 
-    show1() {
-      console.log('show1');
-      this.presentLoadingDefault();
-    }
+  show2() {
+    this.presentLoadingCustom();
+  }
 
-    show2() {
-      console.log('show2');
-      this.presentLoadingCustom();
-    }
+  show3() {
+    this.presentLoadingText();
+  }
 
-    show3() {
-      console.log('show3');
-      this.presentLoadingText();
-    }
+  ionViewDidEnter() {
+    this.menu.enable(false);
+    this.show1();
+  }
 
-    ionViewDidEnter() {
-      console.log('Tutorial ionViewDidEnter');
-      this.menu.enable(false);
-      this.show1();
-    }
-
-    ionViewWillLeave() {
-        this.menu.enable(true);
-    }
+  ionViewWillLeave() {
+    this.menu.enable(true);
+  }
 }

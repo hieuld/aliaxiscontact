@@ -43,7 +43,7 @@ export class UserData {
     this.authenticate(
       auth => {
         this.auth = auth;
-        this.getOnlineUsers();
+        this.getUsers(navigator);
         var username = auth.userInfo.displayableId;
         this.setUsername(username);
         this.events.publish('user:login');
@@ -85,7 +85,6 @@ export class UserData {
   setUsers(users) {
     this.users = [];
     this.checkUsers(users);
-    console.log('refused ' + (users.length - this.users.length) + ' users');
     this.events.publish('users:change', this.users);
   }
 
@@ -103,7 +102,6 @@ export class UserData {
         (data) => {
           this.setUsers(data);
           loading.dismiss();
-          console.log('local loaded');
         },
         (error) => {
           console.error(error);
@@ -121,14 +119,12 @@ export class UserData {
   getUserThumbs() {
     NativeStorage.getItem('userThumbs').then((data) => {
       this.userThumbs = data;
-      // console.log('data', Object.keys(data).length);
     });
 
   }
 
   cacheUserThumbs() {
     if (Object.keys(this.userThumbs).length > 2) {
-      console.log(this.userThumbs);
       NativeStorage.setItem('userThumbs', this.userThumbs);
     }
   }
@@ -136,9 +132,7 @@ export class UserData {
   getOnlineUsers() {
     return new Promise(resolve => {
       if (navigator.connection.type !== 'none') {
-        console.log('getting online contacts.');
         this.fetchUsers(() => {
-          console.log('Successfully loaded online contacts.');
           if (this.users.length !== 0) {
             NativeStorage.setItem('users', this.users);
           }
@@ -183,6 +177,10 @@ export class UserData {
 
   findUser(val, searchtType) {
     if (navigator.connection.type !== 'none') {
+      this.getAuth(
+        auth => {
+          this.auth = auth;
+        }, console.error);
       var query = '&$filter=startswith(' + searchtType + ',\'' + val + '\')';
       if (searchtType === 'displayName') {
         query += ' or startswith(surname,\'' + val + '\')';
@@ -201,6 +199,8 @@ export class UserData {
           this.setUsers(values);
           if (data['odata.nextLink']) {
             this.nextLink = data['odata.nextLink'];
+          } else {
+            this.nextLink = '';
           }
         },
         err => {
@@ -226,9 +226,7 @@ export class UserData {
       })
         .subscribe(data => {
           infiniteScroll.complete();
-          console.log('this.users.length', this.users.length);
           this.checkUsers(data.value);
-          console.log('this.users.length', this.users.length);
           if (data['odata.nextLink']) {
             this.nextLink = data['odata.nextLink'];
           } else {
@@ -259,7 +257,7 @@ export class UserData {
         if (this.users[i]['thumbnailPhoto@odata.mediaContentType']) {
           if (!this.userThumbs[id]) {
             this.fetchProfilePictureById(id, false);
-          } else { console.log('already cached', id); }
+          }
         }
       };
     }
@@ -284,29 +282,22 @@ export class UserData {
               this.profilepic = reader.result;
             }
             this.userThumbs[id] = reader.result;
-            console.log(id);
-          } else {
-            console.log('no picture for', id);
           }
         };
       };
       oReq.onerror = () => {
-        console.log('404', id);
+        console.error('404', id);
       };
       oReq.send();
     }
   }
 
   fetchUsers(completeCallBack, failCallBack) {
-    var t0 = performance.now();
-    var t1 = 0;
     this.getAuth(
       auth => {
         this.fetchUsersWithAuth(
           auth,
           users => {
-            t1 = performance.now();
-            console.log('Call to fetchusers took ' + (t1 - t0) / 1000 + ' seconds.');
             this.setUsers(users);
             completeCallBack(users);
           },
@@ -323,7 +314,7 @@ export class UserData {
     context.tokenCache.clear().then(
       completeCallBack,
       err => {
-        console.log('Failed to clear cache: ' + err);
+        console.error('Failed to clear cache: ' + err);
         failCallBack(err);
       }
     );
