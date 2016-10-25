@@ -1,6 +1,8 @@
 import {
   Component,
-  ViewChild, enableProdMode }    from '@angular/core';
+  enableProdMode,
+  ViewChild
+}    from '@angular/core';
 
 import {
   ionicBootstrap,
@@ -12,7 +14,8 @@ import {
   Loading,
   Platform }     from 'ionic-angular';
 
-import { StatusBar }    from 'ionic-native';
+import { StatusBar,
+   Network }    from 'ionic-native';
 import { TabsPage }     from './pages/tabs/tabs';
 import { AboutPage }    from './pages/about/about';
 import { AccountPage }  from './pages/account/account';
@@ -70,7 +73,7 @@ class MyApp {
     StatusBar.backgroundColorByHexString('#1e117b');
     // Call any initial plugins when ready
     platform.ready().then(() => {
-      if (navigator.connection.type !== 'none') {
+      if (Network.connection !== 'none') {
         StatusBar.overlaysWebView(false);
         StatusBar.backgroundColorByHexString('#1e117b');
         this.userData.login(

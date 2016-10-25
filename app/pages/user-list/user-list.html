@@ -10,7 +10,7 @@
       <ion-icon name="menu"></ion-icon>
     </button>
     <ion-title>People
-      <button (click)="updateUserThumbs()" round icon-only>
+      <button (click)="updateUserThumbs()" round clear icon-only>
         <ion-icon name="refresh"></ion-icon>
       </button>
     </ion-title>
@@ -31,12 +31,12 @@
   <ion-list class="user-list">
     <!-- <ion-list [virtualScroll]="users" class="user-list"> -->
     <!-- <ion-card ng-repeat="let user in users" class="user"> -->
-      <ion-card *ngFor="let user of users" class="user">
-  <ion-card-header>
+    <ion-card *ngFor="let user of users" class="user">
+      <ion-card-header>
         <ion-item>
           <ion-avatar item-left>
-            <ion-img src="img/user.svg" *ngIf="!userThumbs[user.userPrincipalName]"></ion-img>
-            <ion-img [src]="userThumbs[user.userPrincipalName]" *ngIf="userThumbs[user.userPrincipalName]"></ion-img>
+            <img src="img/user.svg" *ngIf="!userThumbs[user.userPrincipalName]" />
+            <img [src]="userThumbs[user.userPrincipalName]" *ngIf="userThumbs[user.userPrincipalName]" />
             <!-- <ion-img [src]="sanitize(user.userPrincipalName)" *ngIf="userThumbs[user.userPrincipalName]"></ion-img> -->
 
           </ion-avatar>

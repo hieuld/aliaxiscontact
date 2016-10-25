@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Events, LocalStorage, Storage, Loading } from 'ionic-angular';
-import { NativeStorage } from 'ionic-native';
+import { NativeStorage, Network } from 'ionic-native';
 import { Http, Headers, RequestOptions, Response } from '@angular/http';
 import { Conf } from '../conf/conf';
 import 'rxjs/add/operator/map';
@@ -119,7 +119,7 @@ export class UserData {
   getUserThumbs() {
     NativeStorage.getItem('userThumbs').then((data) => {
       this.userThumbs = data;
-    });
+    }, () => { });
 
   }
 
@@ -131,7 +131,7 @@ export class UserData {
 
   getOnlineUsers() {
     return new Promise(resolve => {
-      if (navigator.connection.type !== 'none') {
+      if (Network.connection !== 'none') {
         this.fetchUsers(() => {
           if (this.users.length !== 0) {
             NativeStorage.setItem('users', this.users);
@@ -149,7 +149,7 @@ export class UserData {
   }
 
   fetchUsersWithAuth(auth, completeCallBack, failCallBack) {
-    if (navigator.connection.type !== 'none') {
+    if (Network.connection !== 'none') {
       this.url = Conf.resourceUri + '/' + auth.tenantId + '/users?$top=100&api-version=' + Conf.graphApiVersion;
       var values = [];
       var hed: Headers = new Headers();
@@ -176,15 +176,19 @@ export class UserData {
   }
 
   findUser(val, searchtType) {
-    if (navigator.connection.type !== 'none') {
+    if (Network.connection !== 'none') {
       this.getAuth(
         auth => {
           this.auth = auth;
         }, console.error);
+        console.log(val);
+        val = val.replace('\'', '\'\'');
+        console.log(val);
       var query = '&$filter=startswith(' + searchtType + ',\'' + val + '\')';
       if (searchtType === 'displayName') {
         query += ' or startswith(surname,\'' + val + '\')';
       }
+
       this.url = Conf.resourceUri + '/' + this.auth.tenantId + '/users?api-version=' + Conf.graphApiVersion + query;
       var values = [];
       var hed: Headers = new Headers();
@@ -245,13 +249,13 @@ export class UserData {
   }
 
   fetchProfilePicture(auth) {
-    if (navigator.connection.type !== 'none') {
+    if (Network.connection !== 'none') {
       this.fetchProfilePictureById(auth.userInfo.uniqueId, true);
     }
   }
 
   updateUserThumbs() {
-    if (navigator.connection.type !== 'none') {
+    if (Network.connection !== 'none') {
       for (var i = 0; i < this.users.length; i++) {
         var id = this.users[i].userPrincipalName;
         if (this.users[i]['thumbnailPhoto@odata.mediaContentType']) {

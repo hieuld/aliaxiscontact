@@ -33,7 +33,11 @@ export class ContactData {
 
   setContacts(contacts) {
     this.contacts = contacts
-      .filter(x => (x.displayName !== null && x.phoneNumbers !== null))
+      .filter(x => {
+        if (x.displayName === null && x.name.formatted !== null) {
+          x.displayName = x.name.formatted;
+        } return (x.displayName !== null && x.phoneNumbers !== null);
+      })
       .sort((a, b) => {
         if (a.displayName < b.displayName) {
           return -1;
@@ -150,8 +154,13 @@ export class ContactData {
     contact.phoneNumbers = [];
     contact.organizations = [];
     contact.emails = [];
+    contact.name = {};
     if (user.displayName !== null) {
       contact.displayName = user.displayName;
+      contact.name.formatted = user.displayName;
+      contact.name.givenName = user.givenName;
+      contact.name.familyName = user.surname;
+      contact.nickname = user.nickname;
     }
     if (user.mail != null) {
       contact.emails.push(new ContactField('Work', user.mail));
@@ -186,7 +195,7 @@ export class ContactData {
 
   findUser(user) {
     for (var i = 0; i < this.contacts.length; i++) {
-      if (this.contacts[i].displayName === user.displayName) {
+      if (this.contacts[i].displayName === user.displayName || this.contacts[i].name.formatted === user.givenName + ' ' + user.surname) {
         return this.contacts[i];
       }
     }
@@ -218,6 +227,5 @@ export class ContactData {
         }
       );
     }
-
   }
 }

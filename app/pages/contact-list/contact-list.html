@@ -12,8 +12,10 @@
 <ion-content class="outer-content">
   <!-- <ion-card *ngFor="let contact of contacts" class="contact"> -->
 
-  <ion-list [virtualScroll]="contacts" class="contact-list">
-    <ion-card *virtualItem="let contact" class="contact">
+  <!-- <ion-list [virtualScroll]="contacts" class="contact-list">
+    <ion-card *virtualItem="let contact" class="contact"> -->
+  <ion-list class="contact-list">
+    <ion-card *ngFor="let contact of contacts" class="contact">
       <ion-card-header>
         <ion-item class="item-borderless">
           <ion-avatar item-left>

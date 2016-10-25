@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import {NavController, Alert, Platform} from 'ionic-angular';
+import { Network } from 'ionic-native';
+
 
 declare var navigator: any;
 declare var Connection: any;
@@ -8,7 +10,7 @@ declare var Connection: any;
 export class Conf {
 
   constructor() {
-    if (navigator.connection.type === Connection.NONE) {
+    if (Network.connection === Connection.NONE) {
       alert('test'); console.error('no inet');
     }
     throw new Error('Cannot new this class');

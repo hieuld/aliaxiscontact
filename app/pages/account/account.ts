@@ -25,14 +25,6 @@ export class AccountPage {
   ngAfterViewInit() {
     this.getUsername();
     this.profilepic = this.userData.profilepic;
-    // var b64Response = encodeURIComponent(this.profilepic);
-    //
-    // // create an image
-    // this.profilepic = 'data:image/jpg;base64,' + b64Response;
-
-
-    // append it to your page
-    //  document.body.appendChild(outputImg);
   }
 
   getUsername() {

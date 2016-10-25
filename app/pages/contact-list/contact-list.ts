@@ -57,7 +57,7 @@ export class ContactListPage {
     if (val && val.trim() !== '') {
       // this.contactData.findUserByName(val);
       this.contacts = this.contacts.filter((item) => {
-        var name = item.name.givenName + ' ' + item.name.familyName;
+        var name = item.displayName;
         if (name !== null && name !== ' ') {
           return (name.toLowerCase().indexOf(val.toLowerCase()) > -1);
         }
