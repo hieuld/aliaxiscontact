@@ -251,7 +251,7 @@ export class UserData {
   fetchProfilePicture(auth) {
     if (Network.connection !== 'none') {
       this.fetchProfilePictureById(auth.userInfo.uniqueId, true);
-    }
+    }this.profilepic = this.userThumbs[auth.userInfo.uniqueId];
   }
 
   updateUserThumbs() {
@@ -284,6 +284,7 @@ export class UserData {
           if (oReq.status !== 404) {
             if (isUser) {
               this.profilepic = reader.result;
+              NativeStorage.setItem('profilepic', this.profilepic);
             }
             this.userThumbs[id] = reader.result;
           }
