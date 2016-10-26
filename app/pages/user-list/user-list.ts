@@ -42,6 +42,7 @@ export class UserListPage {
     }
     this.savedUsers = this.users;
     // this.userData.getUserThumbs();
+    this.userThumbs = this.userData.userThumbs;
     this.doSubscribe();
   }
 
@@ -62,6 +63,7 @@ export class UserListPage {
 
   getNextPage(infiniteScroll) {
     this.userData.getNextPage(infiniteScroll);
+    this.updateUserThumbs();
   }
 
   updateUserThumbs() {
@@ -83,6 +85,7 @@ export class UserListPage {
       var len = newUsers.length;
 
       (len === 0) ? (this.users.length = 0) : (this.setUsers(newUsers));
+      this.updateUserThumbs();
     });
   }
 
