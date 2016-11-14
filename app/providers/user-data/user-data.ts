@@ -93,15 +93,15 @@ export class UserData {
     if (this.users.length !== 0) {
       return this.users;
     } else {
-      let loading = Loading.create({
-        content: 'Loading Users...'
-      });
-      nav.present(loading);
+      // let loading = Loading.create({
+      //   content: 'Loading Users...'
+      // });
+      // nav.present(loading);
       NativeStorage.getItem('users')
         .then(
         (data) => {
           this.setUsers(data);
-          loading.dismiss();
+          // loading.dismiss();
         },
         (error) => {
           console.error(error);
@@ -111,7 +111,7 @@ export class UserData {
           this.getOnlineUsers();
         })
         .then(() => {
-          loading.dismiss();
+          // loading.dismiss();
         }).then(() => this.cacheUserThumbs());
     }
   }
