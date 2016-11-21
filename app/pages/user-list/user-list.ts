@@ -1,184 +1,191 @@
 import { Component } from '@angular/core';
-import { Events, Loading, ActionSheet, NavController, Alert } from 'ionic-angular';
-import { Toast, SocialSharing } from 'ionic-native';
+import { Events, Loading, NavController, Alert, Platform } from 'ionic-angular';
+import { Toast, SocialSharing, SMS, Network, CallNumber } from 'ionic-native';
 import { UserData } from '../../providers/user-data/user-data';
 import { ContactData } from '../../providers/contact-data/contact-data';
 import { Lib } from '../../providers/lib/lib';
-import { DomSanitizationService  } from '@angular/platform-browser';
 
 @Component({
-  templateUrl: 'build/pages/user-list/user-list.html'
+    templateUrl: 'build/pages/user-list/user-list.html'
 })
 
 export class UserListPage {
-  actionSheet: ActionSheet;
-  users = [];
-  savedUsers = [];
-  userThumbs = {};
-  prevValue = '';
-  search = 'Name';
-  loading = Loading.create({
-    content: 'Loading Users...'
-  });
-
-  constructor(
-    private nav: NavController,
-    private userData: UserData,
-    private contactData: ContactData,
-    private events: Events,
-    private sanitizer: DomSanitizationService) { }
-
-
-  sanitize(url: string) {
-    return this.userData[url];
-
-    // this.userData.fetchProfilePictureById(url, false);
-    // return this.sanitizer.bypassSecurityTrustUrl(this.userData.userThumbs[url]);
-  }
-
-  ionViewWillEnter() {
-    if (this.users.length === 0) {
-      this.getUsers();
-    }
-    this.savedUsers = this.users;
-    // this.userData.getUserThumbs();
-    this.userThumbs = this.userData.userThumbs;
-    this.doSubscribe();
-  }
-
-  ionViewDidEnter() {
-    this.updateUserThumbs();
-  }
-
-
-  getUsers() {
-
-    if (this.users.length <= 0) {
-      this.setUsers(this.userData.getUsers(this.nav));
-    }
-    this.savedUsers = this.userData.getUsers(this.nav);
-    this.userData.getUserThumbs();
-    this.userThumbs = this.userData.userThumbs;
-  }
-
-  getNextPage(infiniteScroll) {
-    this.userData.getNextPage(infiniteScroll);
-    this.updateUserThumbs();
-  }
-
-  updateUserThumbs() {
-    this.userData.updateUserThumbs();
-    this.userThumbs = this.userData.userThumbs;
-  }
-
-  ionViewDidLeave() {
-    this.userData.cacheUserThumbs();
-    this.events.unsubscribe('users:change', () => { });
-  }
-
-  doSubscribe() {
-    this.events.subscribe('users:change', (userEventData) => {
-
-      if (!Lib.hasElementArray(userEventData)) return;
-
-      var newUsers = userEventData[0];
-      var len = newUsers.length;
-
-      (len === 0) ? (this.users.length = 0) : (this.setUsers(newUsers));
-      this.updateUserThumbs();
+    users = [];
+    savedUsers = [];
+    userThumbs = {};
+    prevValue = '';
+    search = 'Name';
+    loading = Loading.create({
+        content: 'Loading Users...'
     });
-  }
 
-  setUsers(users) {
-    this.users = users;
-  }
+    constructor(
+        private nav: NavController,
+        private userData: UserData,
+        private contactData: ContactData,
+        private events: Events,
+        private platform: Platform
+    ) { }
 
-  searchUser(ev: any) {
-    // Reset items back to all of the items
-    if (!this.savedUsers || this.savedUsers.length === 0) {
-      this.savedUsers = this.users;
+    sanitize(url: string) {
+        return this.userData[url];
     }
-    this.users = this.savedUsers;
-    // set val to the value of the rchbar
-    let val = ev.target.value;
-    var searchType;
 
-    switch (this.search) {
-      case 'Job':
-        searchType = 'jobTitle';
-        break;
-      case 'Department':
-        searchType = 'department';
-        break;
-      default:
-        searchType = 'displayName';
-        break;
+    ionViewWillEnter() {
+        this.doSubscribe();
+        this.users = this.userData.users;
+        if (Network.connection !== 'none' && this.userData.fetching) {
+            console.log('ionviewwillenter users = 0 ');
+            this.nav.present(this.loading);
+        }
     }
-    // if the value is an empty string don't filter the items
-    if (val && val.trim() !== '' && (val.length) >= 3) {
-      this.userData.findUser(val, searchType);
-    } else {
-      this.users = this.savedUsers;
+
+    getUsers() {
+
+        if (this.userData.users.length <= 0) {
+            this.setUsers(this.userData.getUsers());
+        }
+        this.savedUsers = this.users;
+        this.userData.getUserThumbs();
+        this.userThumbs = this.userData.userThumbs;
     }
-    this.prevValue = val;
-  }
 
-  doImport(user) {
-    Toast.show('Contact saved!', '5000', 'top').subscribe(
-      toast => {
-        user.photo = this.userThumbs[user.userPrincipalName];
-        this.contactData.importUser(user);
-      },
-      error => {
-        console.error('Error', error);
-      },
-      () => {
-        console.error('Completed');
-      }
-    );
-  }
+    getNextPage(infiniteScroll) {
+        this.userData.getNextPage(infiniteScroll);
+        this.updateUserThumbs();
+    }
 
-  doCall(user) {
+    updateUserThumbs() {
+        this.userData.updateUserThumbs();
+        this.userThumbs = this.userData.userThumbs;
+    }
 
-    if (!Lib.hasValue(user)) { console.error('user = null'); return; }
-    if (!Lib.hasValue(user.mobile)) { console.error('no phone number'); return; }
-    Lib.call(user.mobile);
-  }
+    ionViewDidLeave() {
+        this.userData.cacheUserThumbs();
+        this.events.unsubscribe('users:change', () => { });
+    }
 
-  doText(user) {
-    if (!Lib.hasValue(user)) { console.error('user = null'); return; }
-    if (!Lib.hasValue(user.mobile)) { console.error('no phone number'); return; }
-    Lib.text(user.mobile);
-  }
+    doSubscribe() {
+        this.events.subscribe('users:change', (userEventData) => {
 
-  buildVCard(contact) {
-    var str = contact.displayName + '\n';
-    (contact.mobile) ? (str += 'Mobile: ' + contact.mobile + '\n') : ('');
-    (contact.telephoneNumber) ? (str += 'Phone (fix): ' + contact.telephoneNumber + '\n') : ('');
-    (contact.department) ? (str += 'Department: ' + contact.department + '\n') : ('');
-    (contact.jobTitle) ? (str += 'Job Title: ' + contact.jobTitle + '\n') : ('');
-    (contact.mail) ? (str += 'Email: ' + contact.mail + '\n') : ('');
+            if (!Lib.hasElementArray(userEventData)) return;
+
+            var newUsers = userEventData[0];
+            var len = newUsers.length;
+
+            (len === 0) ? (this.users.length = 0) : (this.setUsers(newUsers));
+            this.updateUserThumbs();
+            this.savedUsers = newUsers;
+            console.log('users changed in userlist', this.users.length);
+        });
+    }
+
+    setUsers(users) {
+        this.users = this.userData.users;
+        this.loading.dismiss();
+    }
+
+    searchUser(ev: any) {
+        // Reset items back to all of the items
+        if (!this.savedUsers || this.savedUsers.length === 0) {
+            this.savedUsers = this.users;
+        }
+        this.users = this.savedUsers;
+        // set val to the value of the rchbar
+        let val = ev.target.value;
+        var searchType;
 
 
-    var vcard = str;
-    // 'FN:' + contact.name.formatted + '\n' +
+        // if the value is an empty string don't filter the items
+        if (val && val.trim() !== '' && (val.length) >= 3) {
+            switch (this.search) {
+                case 'Job':
+                    searchType = 'jobTitle';
+                    break;
+                case 'Department':
+                    searchType = 'department';
+                    break;
+                default:
+                    searchType = 'displayName';
+                    break;
+            }
 
-    // var file = new Blob([vcard], {type: 'vsf'});
+            this.userData.findUser(val, searchType);
+        } else {
+            this.userData.fetchUsers(() => { this.users = this.userData.users; this.savedUsers = this.userData.users; }, console.error);
+        }
+        this.prevValue = val;
+    }
 
-    return vcard;
-  }
+    doImport(user) {
+        if (this.platform.is('windows')) {
+            user.photo = this.userThumbs[user.userPrincipalName];
+            this.contactData.importUser(user);
+        } else {
+            Toast.show('Contact saved!', '5000', 'top').subscribe(
+                toast => {
+                    user.photo = this.userThumbs[user.userPrincipalName];
+                    this.contactData.importUser(user);
+                },
+                error => {
+                    console.error('Error', error);
+                },
+                () => {
+                    console.error('Completed');
+                }
+            );
+        }
+    }
 
-  openUserShare(user) {
-    var vcard = this.buildVCard(user);
-    SocialSharing.share(vcard, 'test', '', '');
-  }
+    doCall(user) {
+        // if (this.platform.is('windows')) {
+        CallNumber.callNumber(user.mobile, false);
+        // } else {
+        // if (!Lib.hasValue(user)) { console.error('user = null'); return; }
+        // if (!Lib.hasValue(user.mobile)) { console.error('no phone number'); return; }
+        // Lib.call(user.mobile);
+        // }
+    }
 
-  doAlert(message: string) {
-    let alert = Alert.create({
-      title: 'Message',
-      subTitle: message,
-      buttons: ['OK']
-    });
-    this.nav.present(alert);
-  }
+    doText(user) {
+        if (this.platform.is('windows')) {
+            SMS.send(user.mobile, 'Hello World');
+        } else {
+            if (!Lib.hasValue(user)) { console.error('user = null'); return; }
+            if (!Lib.hasValue(user.mobile)) { console.error('no phone number'); return; }
+            Lib.text(user.mobile);
+        }
+    }
+
+    buildVCard(contact) {
+        var str = contact.displayName + '\n';
+        (contact.mobile) ? (str += 'Mobile: ' + contact.mobile + '\n') : ('');
+        (contact.telephoneNumber) ? (str += 'Phone (fix): ' + contact.telephoneNumber + '\n') : ('');
+        (contact.department) ? (str += 'Department: ' + contact.department + '\n') : ('');
+        (contact.jobTitle) ? (str += 'Job Title: ' + contact.jobTitle + '\n') : ('');
+        (contact.mail) ? (str += 'Email: ' + contact.mail + '\n') : ('');
+        (contact.thumbnail) ? (str += contact.thumbnail + '\n') : ('');
+
+        var vcard = str;
+        // 'FN:' + contact.name.formatted + '\n' +
+
+        // var file = new Blob([vcard], {type: 'vsf'});
+
+        return vcard;
+    }
+
+    openUserShare(user) {
+        var vcard = this.buildVCard(user);
+        console.log(vcard);        
+        SocialSharing.share(vcard, '', this.userThumbs[user.userPrincipalName], '');
+    }
+
+    doAlert(message: string) {
+        let alert = Alert.create({
+            title: 'Message',
+            subTitle: message,
+            buttons: ['OK']
+        });
+        this.nav.present(alert);
+    }
 }

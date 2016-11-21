@@ -4,3 +4,7 @@ platforms/
 plugins/
 .DS_Store
 *.ini
+app/*/*/*.js
+.vs/
+app/app.js
+.vscode/

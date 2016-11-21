@@ -57,17 +57,16 @@
     <splash src="resources/ios/splash/Default@2x~iphone.png" width="640" height="960"/>
     <splash src="resources/ios/splash/Default~iphone.png" width="320" height="480"/>
   </platform>
-  <preference name="orientation" value="portrait"/>
   <preference name="webviewbounce" value="false"/>
   <preference name="UIWebViewBounce" value="false"/>
   <preference name="DisallowOverscroll" value="true"/>
   <preference name="android-minSdkVersion" value="16"/>
   <preference name="BackupWebStorage" value="none"/>
-  <preference name="FadeSplashScreenDuration" value="5000"/>
-  <preference name="SplashScreenDelay" value="5000"/>
   <preference name="ShowSplashScreenSpinner" value="false"/>
+  <preference name="AutoHideSplashScreen" value="false"/>
   <preference name="SplashScreen" value="screen"/>
-  <preference name="windows-target-version" value="10.0" />
+  <preference name="windows-target-version" value="10.0"/>
+  <preference name="Orientation" value="portrait"/>
   <feature name="StatusBar">
     <param name="ios-package" onload="true" value="CDVStatusBar"/>
   </feature>
@@ -77,5 +76,15 @@
   <plugin name="cordova-plugin-splashscreen" spec="~4.0.0"/>
   <plugin name="cordova-plugin-statusbar" spec="~2.1.3"/>
   <plugin name="ionic-plugin-keyboard" spec="~2.2.1"/>
+  <plugin name="cordova-plugin-compat" version="1.0.0"/>
+  <plugin name="cordova-plugin-contacts" version="2.2.0"/>
+  <plugin name="cordova-plugin-file" version="4.3.0"/>
+  <plugin name="cordova-plugin-ms-adal" version="0.8.1"/>
+  <plugin name="cordova-plugin-nativestorage" version="2.0.2"/>
+  <plugin name="cordova-plugin-network-information" version="1.3.0"/>
+  <plugin name="cordova-plugin-x-socialsharing" version="5.1.3"/>
+  <plugin name="cordova-plugin-x-toast" version="2.5.2"/>
+  <plugin name="cordova-sms-plugin" version="0.1.11"/>
+  <plugin name="mx.ferreyra.callnumber" version="0.0.2"/>
   <icon src="resources/android/icon/drawable-xhdpi-icon.png"/>
 </widget>

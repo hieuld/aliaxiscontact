@@ -23,8 +23,9 @@ export class ContactListPage {
 
 
   ionViewWillEnter() {
-    if (this.contacts.length === 0 || this.contacts.length !== this.contactData.contacts.length) {
-      let loading = Loading.create({
+    if (!this.contacts || this.contacts.length === 0 || this.contacts.length !== this.contactData.contacts.length) {
+        this.contacts = [];
+        let loading = Loading.create({
         content: 'Loading Contact...'
       });
 

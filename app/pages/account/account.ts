@@ -23,7 +23,8 @@ export class AccountPage {
     return this.sanitizer.bypassSecurityTrustUrl(url);
   }
   ngAfterViewInit() {
-    this.getUsername();
+      this.getUsername();
+      this.userData.fetchProfilePicture(this.userData.auth);
     this.profilepic = this.userData.profilepic;
   }
 

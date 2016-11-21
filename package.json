@@ -34,7 +34,16 @@
     "cordova-plugin-whitelist",
     "cordova-plugin-splashscreen",
     "cordova-plugin-statusbar",
-    "ionic-plugin-keyboard"
+    "ionic-plugin-keyboard",
+    "cordova-plugin-compat",
+    "cordova-plugin-contacts",
+    "cordova-plugin-file",
+    "cordova-plugin-ms-adal",
+    "cordova-plugin-nativestorage",
+    "cordova-plugin-network-information",
+    "cordova-plugin-x-socialsharing",
+    "cordova-plugin-x-toast",
+    "cordova.plugins.diagnostic"
   ],
   "cordovaPlatforms": [
     "ios",
@@ -42,6 +51,31 @@
       "platform": "ios",
       "version": "",
       "locator": "ios"
+    },
+    {
+      "platform": "android",
+      "version": "",
+      "locator": "android"
+    },
+    {
+      "platform": "windows",
+      "version": "",
+      "locator": "windows"
+    },
+    {
+      "platform": "Windows Phone (Universal)",
+      "version": "",
+      "locator": "Windows Phone (Universal)"
+    },
+    {
+      "platform": "Windows-x64",
+      "version": "",
+      "locator": "Windows-x64"
+    },
+    {
+      "platform": "wp8",
+      "version": "",
+      "locator": "wp8"
     }
   ],
   "name": "aliaxiscontact",

@@ -24,13 +24,13 @@
       <ion-option value="Department">Department</ion-option>
     </ion-select>
   </ion-item>
-  <ion-searchbar (ionInput)="searchUser($event)"></ion-searchbar>
+  <ion-searchbar autofocus (ionInput)="searchUser($event)"></ion-searchbar>
 </ion-header>
 
 <ion-content class="outer-content">
-  <ion-list class="user-list">
-    <!-- <ion-list [virtualScroll]="users" class="user-list"> -->
-    <!-- <ion-card ng-repeat="let user in users" class="user"> -->
+  <ion-list class="user-list">  
+     <!--<ion-list [virtualScroll]="users" class="user-list">
+     <ion-card ng-repeat="let user in users" class="user"> -->
     <ion-card *ngFor="let user of users" class="user">
       <ion-card-header>
         <ion-item>
@@ -80,7 +80,7 @@
         </button>
         <button (click)="doImport(user)" round secondary text-center item-left>
           <ion-icon name="person-add"></ion-icon>
-          Import
+          Save
         </button>
         <button (click)="openUserShare(user)" round secondary text-center item-right>
           <ion-icon name="share"></ion-icon>
