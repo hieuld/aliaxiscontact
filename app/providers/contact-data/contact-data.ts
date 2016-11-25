@@ -87,12 +87,10 @@ export class ContactData {
           test.phoneNumbers.push(cfTelNr);
         } else {
           if (test.phoneNumbers.filter(x => x.value.replace(' ', '') === user.mobile.replace(' ', '')).length < 0) {
-            console.log(test.phoneNumbers.filter(x => x.value.replace(' ', '') === user.mobile.replace(' ', '')).length);
             var cf = new ContactField('Mobile', user.mobile);
             test.phoneNumbers.push(cf);
           }
           if (test.phoneNumbers.filter(x => x.value.replace(' ', '') === user.telephoneNumber.replace(' ', '')).length < 0) {
-            console.log(test.phoneNumbers.filter(x => x.value.replace(' ', '') === user.telephoneNumber.replace(' ', '')).length);
             var cf = new ContactField('Home', user.telephoneNumber);
             test.phoneNumbers.push(cf);
           }
@@ -112,7 +110,6 @@ export class ContactData {
           test.organizations = [];
         }
         test.organizations.push({ type: 'Work', title: user.jobTitle, department: user.department });
-        console.log(test.organizations);
       }
 
       if (user.photo !== undefined && user.photo !== null) {
@@ -124,8 +121,6 @@ export class ContactData {
       }
       test.save().then(
         (contact) => {
-          console.log('Contact saved!', test);
-          console.log(contact);
           this.contacts = [];
           this.loadContacts(() =>
             this.setContacts(this.getContacts()), console.error);
@@ -137,8 +132,6 @@ export class ContactData {
       test = this.createContact(user);
       test.save().then(
         (contact) => {
-          console.log('Contact saved!', test);
-          console.log(contact);
           this.contacts = [];
           this.loadContacts(() =>
             this.setContacts(this.getContacts()), console.error);
@@ -212,6 +205,7 @@ export class ContactData {
 
   importUser(user) {
     var contact;
+
     if (this.contacts !== undefined) {
       this.setContacts(this.getContacts());
       test = this.findUser(user);

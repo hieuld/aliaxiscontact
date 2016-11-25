@@ -51,7 +51,6 @@ export class ContactListPage {
   searchContact(ev: any) {
     // Reset items back to all of the items
     this.contacts = this.savedContacts;
-
     // set val to the value of the searchbar
     let val = ev.target.value;
     // if the value is an empty string don't filter the items
@@ -64,7 +63,6 @@ export class ContactListPage {
         }
       });
     }
-    console.log(this.contacts);
     this.prevValue = val;
   }
 

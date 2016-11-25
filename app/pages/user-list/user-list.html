@@ -24,26 +24,22 @@
       <ion-option value="Department">Department</ion-option>
     </ion-select>
   </ion-item>
-  <ion-searchbar autofocus (ionInput)="searchUser($event)"></ion-searchbar>
+  <ion-searchbar color="primary" [debounce]=300 (ionInput)="searchUser($event)">
+  </ion-searchbar>
 </ion-header>
 
-<ion-content class="outer-content">
-  <ion-list class="user-list">  
-     <!--<ion-list [virtualScroll]="users" class="user-list">
-     <ion-card ng-repeat="let user in users" class="user"> -->
+<ion-content class="outer-content" (click)="hideKeyboard()">
+  <ion-list class="user-list">
     <ion-card *ngFor="let user of users" class="user">
       <ion-card-header>
         <ion-item>
           <ion-avatar item-left>
             <img src="img/user.svg" *ngIf="!userThumbs[user.userPrincipalName]" />
             <img [src]="userThumbs[user.userPrincipalName]" *ngIf="userThumbs[user.userPrincipalName]" />
-            <!-- <ion-img [src]="sanitize(user.userPrincipalName)" *ngIf="userThumbs[user.userPrincipalName]"></ion-img> -->
-
           </ion-avatar>
           {{user.displayName}}
         </ion-item>
       </ion-card-header>
-
       <ion-card-content class="outer-content">
         <ion-list>
           <ion-item>
@@ -68,8 +64,11 @@
           </ion-item>
         </ion-list>
       </ion-card-content>
-
       <ion-item>
+        <button (click)="doImport(user)" round secondary text-center>
+          <ion-icon name="person-add"></ion-icon>
+          Save
+        </button>
         <button (click)="doCall(user)" round secondary text-center>
           <ion-icon name="call"></ion-icon>
           Call
@@ -78,16 +77,11 @@
           <ion-icon name="text"></ion-icon>
           Text
         </button>
-        <button (click)="doImport(user)" round secondary text-center item-left>
-          <ion-icon name="person-add"></ion-icon>
-          Save
-        </button>
-        <button (click)="openUserShare(user)" round secondary text-center item-right>
+        <button (click)="openUserShare(user)" round secondary text-center>
           <ion-icon name="share"></ion-icon>
           Share
         </button>
       </ion-item>
-
     </ion-card>
   </ion-list>
   <ion-infinite-scroll threshold="-30%" (ionInfinite)="getNextPage($event)">
