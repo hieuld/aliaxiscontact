@@ -17,10 +17,7 @@ export class UserListPage {
   search = 'Name';
   searchValue = '';
   cancelled = false;
-  loading = Loading.create({
-    content: "Loading users...",
-    dismissOnPageChange: true
-  });
+  loading: Loading;
 
   constructor(
     private nav: NavController,
@@ -35,20 +32,22 @@ export class UserListPage {
   }
 
   ionViewWillEnter() {
-    this.doSubscribe();
-    this.doSubscribeFetchEvent();
     this.users = this.userData.users;
-    // if (Network.connection !== 'none' && this.userData.fetching && this.userData.users.length <= 0) {
-    // if (Network.connection !== 'none' && this.userData.fetching) {
-    //   console.log('present loader 1');
-    //   this.nav.present(this.loading);
-    // } else {
-    //   console.log('dismiss loader 1');
-    //   this.loading.dismiss();
-    // }
+  }
+
+  ionViewDidEnter() {
+    this.doSubscribe();
+    if (this.users.length === 0) {
+      this.loading = Loading.create({
+        content: 'Loading users...',
+        dismissOnPageChange: true
+      });
+      this.nav.present(this.loading);
+    }
   }
 
   getUsers() {
+    console.log('UL: GETUSERS');
 
     if (this.userData.users.length <= 0) {
       this.setUsers(this.userData.getUsers());
@@ -59,23 +58,36 @@ export class UserListPage {
   }
 
   getNextPage(infiniteScroll) {
+    console.log('UL: GETNEXTPAGE');
+
     this.userData.getNextPage(infiniteScroll);
     this.updateUserThumbs();
   }
 
   updateUserThumbs() {
+    console.log('UL: UPDATEUSERTHUMBS');
+
     this.userData.updateUserThumbs();
     this.userThumbs = this.userData.userThumbs;
   }
 
   ionViewDidLeave() {
+    console.log('UL:IONVIEWDIDLEAVE');
     this.userData.cacheUserThumbs();
-    this.loading.dismiss();
     console.log('viewDidLeave dismissed page');
+    this.doUnsubscribe();
+  }
+
+  doUnsubscribe() {
+    console.log('UL:DOUNSUBSCRIBE');
     this.events.unsubscribe('users:change', () => { });
+    console.log('UL:DOUNSUBSCRIBEFETCHING');
+    this.events.unsubscribe('fetching', () => { });
   }
 
   doSubscribe() {
+    console.log('UL: DOSUBSCRIBE');
+
     this.events.subscribe('users:change', (userEventData) => {
       if (!Lib.hasElementArray(userEventData)) return;
       if (this.users.length === 0) {
@@ -87,31 +99,51 @@ export class UserListPage {
       this.updateUserThumbs();
       this.savedUsers = newUsers;
     });
-  }
 
-  doSubscribeFetchEvent() {
+    console.log('UL: DOSUBSCRIBEFETCHEVENT');
     this.events.subscribe('fetching', (fetchEvent) => {
       if (!Lib.hasElementArray(fetchEvent)) return;
       let fetching = fetchEvent[0];
-      console.log('received fetchEvent ', fetching);
       if (fetching) {
-        console.log('fetchEvent present loader');
-        this.loading = Loading.create({
-          content: "Loading users...",
-          dismissOnPageChange: true
-        });
-        this.nav.present(this.loading);
-        console.log('fetchEvent should have presented loader');
+        // if (this.users.length === 0) {
+        //   if (this.loading === undefined) {
+        console.log('fetchEvent received true');
+        //     console.log('loading:before');
+        //     this.loading = Loading.create({
+        //       content: 'Loading users...',
+        //       dismissOnPageChange: true
+        //     });
+        //     this.nav.present(this.loading);
+        //   }
+        // }
       } else {
         console.log('fetchEvent dismiss loader');
         this.loading.dismiss();
       }
     });
+
+    console.log('UL: DOSUBSCRIBELOGOUT');
+    this.events.subscribe('user:logout', () => {
+      this.doUnsubscribe();
+      console.log('fetchEvent dismiss loader');
+      this.loading.dismiss();
+    });
+
+    console.log('UL: DOSUBSCRIBEINITIALLOGIN');
+    this.events.subscribe('user:initialLogin', () => {
+      console.log('initialLogin');
+      this.loading = Loading.create({
+        content: 'Loading users...',
+        dismissOnPageChange: true
+      });
+      this.nav.present(this.loading);
+    });
+
   }
 
   setUsers(users) {
+    console.log('UL: SETUSERS');
     this.users = this.userData.users;
-    this.loading.dismiss();
   }
 
   hideKeyboard() {
@@ -119,6 +151,8 @@ export class UserListPage {
   }
 
   searchUser(ev: any) {
+    console.log('UL: SEARCHUSER');
+
     // Reset items back to all of the items
     if (!this.savedUsers || this.savedUsers.length === 0) {
       this.savedUsers = this.users;
@@ -153,7 +187,7 @@ export class UserListPage {
   }
 
   doImport(user) {
-    Toast.show('Contact saved!', '5000', 'top').subscribe(
+    Toast.show('Contact saved!', '3000', 'top').subscribe(
       toast => {
         user.photo = this.userThumbs[user.userPrincipalName];
         this.contactData.importUser(user);
@@ -168,13 +202,7 @@ export class UserListPage {
   }
 
   doCall(user) {
-    // if (this.platform.is('windows')) {
     CallNumber.callNumber(user.mobile, false);
-    // } else {
-    // if (!Lib.hasValue(user)) { console.error('user = null'); return; }
-    // if (!Lib.hasValue(user.mobile)) { console.error('no phone number'); return; }
-    // Lib.call(user.mobile);
-    // }
   }
 
   doText(user) {
@@ -187,8 +215,8 @@ export class UserListPage {
 
   buildVCard(contact) {
     var str = contact.displayName + '\n';
-    (contact.mobile) ? (str += 'Mobile: ' + contact.mobile + '\n') : ('');
-    (contact.telephoneNumber) ? (str += 'Phone (fix): ' + contact.telephoneNumber + '\n') : ('');
+    (contact.mobilePhone) ? (str += 'Mobile: ' + contact.mobilePhone + '\n') : ('');
+    (contact.businessPhones[0]) ? (str += 'Business Phone: ' + contact.businessPhones[0] + '\n') : ('');
     (contact.department) ? (str += 'Department: ' + contact.department + '\n') : ('');
     (contact.jobTitle) ? (str += 'Job Title: ' + contact.jobTitle + '\n') : ('');
     (contact.mail) ? (str += 'Email: ' + contact.mail + '\n') : ('');

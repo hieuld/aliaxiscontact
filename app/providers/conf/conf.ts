@@ -17,8 +17,14 @@ export class Conf {
     }
 
     static authority = 'https://login.windows.net/common';
-    static redirectUri = 'http://DevoteamContactSearcherApp';
-    static resourceUri = 'https://graph.windows.net';
-    static clientId = '54d04588-2045-45f8-82e1-3d6960340840';
-    static graphApiVersion = '2013-11-08';
+    static resourceUri = 'https://graph.microsoft.com';
+    // Devoteam
+    // static clientId = '54d04588-2045-45f8-82e1-3d6960340840';
+    // static redirectUri = 'http://DevoteamContactSearcherApp';
+    // Aliaxis
+    static clientId = 'e788e3ca-4ef2-49e0-990b-ffcdb8236277';
+    static redirectUri = 'http://AliaxisContactSearchApp';
+
+
+    static graphApiVersion = 'v1.0';
 }

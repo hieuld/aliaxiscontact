@@ -79,11 +79,10 @@ class MyApp {
     platform.ready().then(() => {
       this.userData.login(
         () => {
-          console.log('loggedin');
           this.enableMenu(true);
+          this.events.publish('fetching', false);
         },
         () => {
-          console.error('login failed ..........');
           this.enableMenu(false);
         }
       );
@@ -106,9 +105,9 @@ class MyApp {
           this.userData.getLocalUsers();
         }
       } else {
-        if (!this.userData.fetching && this.userData.users.length <= 0) {
-          this.userData.getUsers();
-        }
+        // if (!this.userData.fetching && this.userData.users.length <= 0) {
+        //   this.userData.getUsers();
+        // }
       }
       Splashscreen.hide();
       StatusBar.overlaysWebView(true);
@@ -138,8 +137,8 @@ class MyApp {
     } else if (page.title === 'Login') {
 
       this.userData.login(
-        () => { console.log('login succes'); },
-        () => { console.log('login failed'); }
+        () => { },
+        () => { }
       );
     }
 
@@ -148,14 +147,6 @@ class MyApp {
   listenToLoginEvents() {
     this.events.subscribe('user:login', () => {
       this.enableMenu(true);
-      console.log('login event received');
-      // this.openPage(this.appPages[0]);
-      // this.userData.fetchUsers(()=>{
-      //   console.log('login event received; fetching users ');
-      // },
-      // () => {
-      //   console.log('login event recieved and failed');
-      // });
     });
 
     this.events.subscribe('user:logout', () => {

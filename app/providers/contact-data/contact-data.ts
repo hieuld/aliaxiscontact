@@ -78,20 +78,20 @@ export class ContactData {
     // var contact;
     if (test !== undefined) {
       // contact = test;
-      if (user.mobile !== null) {
+      if (user.mobilePhone !== null) {
         if (!test.phoneNumbers) {
           test.phoneNumbers = [];
-          var cfMobNr = new ContactField('Mobile', user.mobile);
+          var cfMobNr = new ContactField('Mobile', user.mobilePhone);
           test.phoneNumbers.push(cfMobNr);
-          var cfTelNr = new ContactField('Home', user.telephoneNumber);
+          var cfTelNr = new ContactField('Home', user.businessPhones[0]);
           test.phoneNumbers.push(cfTelNr);
         } else {
-          if (test.phoneNumbers.filter(x => x.value.replace(' ', '') === user.mobile.replace(' ', '')).length < 0) {
-            var cf = new ContactField('Mobile', user.mobile);
+          if (test.phoneNumbers.filter(x => x.value.replace(' ', '') === user.mobilePhone.replace(' ', '')).length < 0) {
+            var cf = new ContactField('Mobile', user.mobilePhone);
             test.phoneNumbers.push(cf);
           }
-          if (test.phoneNumbers.filter(x => x.value.replace(' ', '') === user.telephoneNumber.replace(' ', '')).length < 0) {
-            var cf = new ContactField('Home', user.telephoneNumber);
+          if (test.phoneNumbers.filter(x => x.value.replace(' ', '') === user.businessPhones[0].replace(' ', '')).length < 0) {
+            var cf = new ContactField('Home', user.businessPhones[0]);
             test.phoneNumbers.push(cf);
           }
         }
@@ -159,13 +159,13 @@ export class ContactData {
       contact.emails.push(new ContactField('Work', user.mail));
     }
 
-    if (user.mobile !== null) {
-      var cf = new ContactField('Mobile', user.mobile);
+    if (user.mobilePhone !== null) {
+      var cf = new ContactField('Mobile', user.mobilePhone);
       contact.phoneNumbers.push(cf);
     }
 
-    if (user.telephoneNumber !== null) {
-      contact.phoneNumbers.push(new ContactField('Home', user.telephoneNumber));
+    if (user.businessPhones !== null) {
+      contact.phoneNumbers.push(new ContactField('Business', user.businessPhones[0]));
 
     }
     if (user.department != null) {
