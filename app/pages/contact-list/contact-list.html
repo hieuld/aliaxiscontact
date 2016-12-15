@@ -10,6 +10,7 @@
 </ion-header>
 
 <ion-content class="outer-content">
+<!--<ion-content class="outer-content" (click)="hideKeyboard()">-->
   <!-- <ion-card *ngFor="let contact of contacts" class="contact"> -->
 
   <!-- <ion-list [virtualScroll]="contacts" class="contact-list">
@@ -58,7 +59,7 @@
         </button>
         <button (click)="doText(contact)" round secondary item-left>
           <ion-icon name="text"></ion-icon>
-          Text
+          <a [href]="sanitizeSMS(contact)"> Text </a>
         </button>
 
         <button (click)="openContactShare(contact)" round secondary item-right>

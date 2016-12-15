@@ -15,7 +15,7 @@ export class ContactData {
   loadContacts(completeCallBack, failComeBack) {
     // find all contacts
     var t = { 'filter': '', 'multiple': true, 'hasPhoneNumber': true, 'desiredFields': ['name', 'emails', 'phoneNumbers', 'photos'] };
-    Contacts.find(['*'], t)
+    Contacts.find(['name', 'emails', 'phoneNumbers', 'photos'], t)
       .then((contacts) => {
         this.setContacts(contacts);
         completeCallBack();
@@ -46,7 +46,8 @@ export class ContactData {
         } else {
           return 0;
         }
-      });
+      })
+      ;
   }
 
   getContacts() {
@@ -63,21 +64,17 @@ export class ContactData {
       }
     );
   }
-  pickupAContact(completeCallBack, failComeBack) {
+  pickupAContact() {
     Contacts.pickContact()
       .then((contact) => {
-        completeCallBack(contact);
       })
       .catch((err) => {
         console.error(err);
-        failComeBack(err);
       });
   }
 
   saveContact(test, user) {
-    // var contact;
     if (test !== undefined) {
-      // contact = test;
       if (user.mobilePhone !== null) {
         if (!test.phoneNumbers) {
           test.phoneNumbers = [];
@@ -142,7 +139,6 @@ export class ContactData {
   }
 
   createContact(user) {
-    // return new Promise(resolve => {
     var contact = Contacts.create();
     contact.phoneNumbers = [];
     contact.organizations = [];
@@ -180,24 +176,13 @@ export class ContactData {
       contact.photos.push(cf);
 
     } else {
-      // resolve();
     }
     return contact;
-    // });
   }
 
   findUser(user) {
     for (var i = 0; i < this.contacts.length; i++) {
       if (this.contacts[i].displayName === user.displayName || this.contacts[i].name.formatted === user.givenName + ' ' + user.surname) {
-        return this.contacts[i];
-      }
-    }
-  }
-
-  findUserByName(userName) {
-    for (var i = 0; i < this.contacts.length; i++) {
-      if (this.contacts[i].displayName.toLowerCase().indexOf(userName.toLowerCase()) > -1) {
-        // if (this.contacts[i].displayName === userName) {
         return this.contacts[i];
       }
     }

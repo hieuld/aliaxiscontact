@@ -28,14 +28,16 @@
   </ion-searchbar>
 </ion-header>
 
-<ion-content class="outer-content" (click)="hideKeyboard()">
+<ion-content class="outer-content">
+<!--<ion-content class="outer-content" (click)="hideKeyboard()">-->
   <ion-list class="user-list">
     <ion-card *ngFor="let user of users" class="user">
       <ion-card-header>
         <ion-item>
           <ion-avatar item-left>
             <img src="img/user.svg" *ngIf="!userThumbs[user.userPrincipalName]" />
-            <img [src]="userThumbs[user.userPrincipalName]" *ngIf="userThumbs[user.userPrincipalName]" />
+            <img [src]="sanitize(userThumbs[user.userPrincipalName])" *ngIf="userThumbs[user.userPrincipalName]" />
+                <!--<img  [src]="sanitize(profilepic)">-->
           </ion-avatar>
           {{user.displayName}}
         </ion-item>
@@ -50,15 +52,15 @@
             <h3>Mobile:
               {{user.mobilePhone}}</h3>
           </ion-item>
-          <ion-item>
+          <ion-item *ngIf="user.businessPhones[0]">
             <h3>Business Phone:
               {{user.businessPhones[0]}}</h3>
           </ion-item>
-          <ion-item>
+          <ion-item *ngIf="user.jobTitle">
             <h3>Job Title:
               {{user.jobTitle}}</h3>
           </ion-item>
-          <ion-item>
+          <ion-item *ngIf="user.department">
             <h3>Department:
               {{user.department}}</h3>
           </ion-item>
@@ -73,11 +75,12 @@
           <ion-icon name="call"></ion-icon>
           Call
         </button>
+        <!--<button (click)="doText(user)" round secondary text-center>-->
         <button (click)="doText(user)" round secondary text-center>
           <ion-icon name="text"></ion-icon>
-          Text
+          <a [href]="sanitize(user.mobilePhone)"> Text </a>
         </button>
-        <button (click)="openUserShare(user)" round secondary text-center>
+        <button (click)="doShare(user)" round secondary text-center>
           <ion-icon name="share"></ion-icon>
           Share
         </button>

@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Toast, SocialSharing, SMS, CallNumber } from 'ionic-native';
 
 @Injectable()
 export class Lib {
@@ -19,10 +20,14 @@ export class Lib {
   }
 
   static call(num) {
-    window.open('tel:' + num, '_system');
+    CallNumber.callNumber(num, false);
   }
 
-  static text(num) {
-    window.open('sms:' + num, '_system');
+  static text(num, message) {
+    SMS.send(num, '', { android: { intent: 'INTENT' } });
+  }
+
+  static share(user, title, photo, url) {
+    SocialSharing.share(user, title, photo, url);
   }
 }

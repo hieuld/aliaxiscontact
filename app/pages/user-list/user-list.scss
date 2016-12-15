@@ -1,3 +1,5 @@
+@import "app.variables";
+
 .user-list {
 
   ion-card.user ion-card-header .item {
@@ -14,4 +16,8 @@
     padding: 0;
   }
 
+ a{
+   text-decoration: none;
+   color: #fff;
+ }
 }

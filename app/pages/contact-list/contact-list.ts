@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ActionSheet, Loading, NavController } from 'ionic-angular';
+import { ActionSheet, Loading, NavController, Alert, Platform } from 'ionic-angular';
 import { SocialSharing } from 'ionic-native';
 import { ContactData } from '../../providers/contact-data/contact-data';
 import { Lib } from '../../providers/lib/lib';
@@ -11,22 +11,36 @@ import { DomSanitizationService  } from '@angular/platform-browser';
 export class ContactListPage {
   actionSheet: ActionSheet;
   contacts = [];
-  prevValue = '';
+  prevValue: string = '';
   savedContacts = [];
 
-  constructor(private nav: NavController, private contactData: ContactData, private sanitizer: DomSanitizationService) { }
+  constructor(
+    private nav: NavController,
+    private contactData: ContactData,
+    private platform: Platform,
+    private sanitizer: DomSanitizationService) { }
 
 
   sanitize(url: string) {
     return this.sanitizer.bypassSecurityTrustUrl(url);
   }
 
+  sanitizeSMS(contact) {
+
+    if (!Lib.hasValue(contact)) { console.error('contact = null'); return; }
+    if (!Lib.hasElementArray(contact.phoneNumbers)) { console.error('no phone number'); return; }
+
+    var phoneNum = contact.phoneNumbers[0];
+    if (!Lib.hasValue(phoneNum.value)) { console.error('no phone number'); return; }
+
+    var num = phoneNum.value; return this.sanitizer.bypassSecurityTrustUrl('sms:' + num);
+  }
 
   ionViewWillEnter() {
     if (!this.contacts || this.contacts.length === 0 || this.contacts.length !== this.contactData.contacts.length) {
-        this.contacts = [];
-        let loading = Loading.create({
-        content: 'Loading Contact...'
+      this.contacts = [];
+      let loading = Loading.create({
+        content: 'Loading Contacts...'
       });
 
       this.nav.present(loading);
@@ -55,7 +69,6 @@ export class ContactListPage {
     let val = ev.target.value;
     // if the value is an empty string don't filter the items
     if (val && val.trim() !== '') {
-      // this.contactData.findUserByName(val);
       this.contacts = this.contacts.filter((item) => {
         var name = item.displayName;
         if (name !== null && name !== ' ') {
@@ -86,8 +99,9 @@ export class ContactListPage {
     if (!Lib.hasValue(phoneNum.value)) { console.error('no phone number'); return; }
 
     var num = phoneNum.value;
-    Lib.text(num);
-
+    if (this.platform.is('android')) {
+      Lib.text(num, '');
+    }
   }
 
 
@@ -118,6 +132,6 @@ export class ContactListPage {
 
   openContactShare(user) {
     var vcard = this.buildVCard(user);
-    SocialSharing.share(vcard, 'test', '', '');
+    Lib.share(vcard, user.displayName, user.photos[0], '');
   }
 }

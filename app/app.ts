@@ -18,12 +18,11 @@ import {
 import {
   StatusBar,
   Network,
-  Splashscreen
+  Splashscreen 
 } from 'ionic-native';
 import { TabsPage } from './pages/tabs/tabs';
 import { AboutPage } from './pages/about/about';
 import { AccountPage } from './pages/account/account';
-import { TutorialPage } from './pages/tutorial/tutorial';
 import { UserData } from './providers/user-data/user-data';
 import { ContactData } from './providers/contact-data/contact-data';
 import { Conf } from './providers/conf/conf';
@@ -70,12 +69,10 @@ class MyApp {
     private menu: MenuController,
     private events: Events,
     private userData: UserData,
-    // private contactData: ContactData,
     platform: Platform
   ) {
 
     // Call any initial plugins when ready
-
     platform.ready().then(() => {
       this.userData.login(
         () => {
@@ -101,14 +98,10 @@ class MyApp {
           }]
         });
         this.nav.present(alert);
-        if (!this.userData.fetching && this.userData.users.length <= 0) {
+        if ( this.userData.users.length <= 0) {
           this.userData.getLocalUsers();
         }
-      } else {
-        // if (!this.userData.fetching && this.userData.users.length <= 0) {
-        //   this.userData.getUsers();
-        // }
-      }
+      } 
       Splashscreen.hide();
       StatusBar.overlaysWebView(true);
       StatusBar.backgroundColorByHexString('#1e117b');
